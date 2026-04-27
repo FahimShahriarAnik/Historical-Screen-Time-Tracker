@@ -436,6 +436,34 @@ const CHROME_CAT_KEYS = ['dev','research','entertainment','comms','shopping','se
 // Domains to exclude entirely (automated / background noise)
 const CHROME_EXCLUDE = new Set(['app.blackbox.ai']);
 
+// ─── Chrome time → Mac category overrides ──────────────────────────────────
+// Time spent on these domains is redistributed from "Browse" into the listed
+// Mac category for the Mac-side charts (Daily Mix, Daily Rhythm, Weekday vs
+// Weekend, % deep work tile). The Chrome breakdown panel is unaffected.
+// To add/remove a domain: edit one of the arrays below. Suffix-matched, so
+// "github.com" also catches "subdomain.github.com".
+// Anything not listed here defaults to "browse".
+const CHROME_TO_MAC_CAT = {
+  deep_work: [
+    // AI tools
+    'claude.ai','perplexity.ai','gemini.google.com','aistudio.google.com',
+    'chatgpt.com','chat.openai.com',
+    // Code / docs
+    'github.com','stackoverflow.com',
+    // Writing / research
+    'overleaf.com','arxiv.org','acm.org',
+    // Dev infra
+    'vercel.com','supabase.com','console.firebase.google.com',
+  ],
+  entertainment: [
+    'youtube.com','netflix.com','reddit.com','twitter.com','x.com',
+    'instagram.com','tiktok.com','twitch.tv',
+  ],
+  comms: [
+    'mail.google.com',
+  ],
+};
+
 const PALETTE = ['#6366f1','#14b8a6','#22c55e','#f59e0b','#ec4899','#06b6d4','#a855f7','#f97316'];
 
 // Module-scope data (set in init, used by detail panel)
@@ -458,6 +486,60 @@ function getChromeCat(domain) {
     }
   }
   return 'other';
+}
+
+// Map a Chrome domain to a Mac category (for redistributing Chrome time).
+// Returns 'browse' if not explicitly tagged.
+function getChromeMacCat(domain) {
+  if (!domain) return 'browse';
+  const d = domain.toLowerCase();
+  for (const [k, list] of Object.entries(CHROME_TO_MAC_CAT)) {
+    for (const entry of list) {
+      if (d === entry || d.endsWith('.' + entry)) return k;
+    }
+  }
+  return 'browse';
+}
+
+// For each date, compute the proportional split of Chrome wall-clock time
+// across Mac categories. Used to redistribute Mac-side Chrome minutes.
+// Returns: { [date]: { deep_work, entertainment, browse, comms, ... } }
+function buildChromeShares(chrome) {
+  const byDate = {};
+  chrome.forEach(r => {
+    if (!r.domain || CHROME_EXCLUDE.has(r.domain)) return;
+    const m = +r.total_mins;
+    if (!isFinite(m) || m <= 0) return;
+    const k = getChromeMacCat(r.domain);
+    const e = byDate[r.date] ??= { _total: 0 };
+    e[k] = (e[k] ?? 0) + m;
+    e._total += m;
+  });
+  const out = {};
+  for (const [date, e] of Object.entries(byDate)) {
+    if (e._total <= 0) continue;
+    const share = {};
+    for (const [k, v] of Object.entries(e)) {
+      if (k === '_total') continue;
+      share[k] = v / e._total;
+    }
+    out[date] = share;
+  }
+  return out;
+}
+
+// Given a usage row, return { [mac_cat]: mins } — splits Chrome rows across
+// categories using chromeShares. Other apps return a single entry.
+function rowCatMins(row, chromeShares) {
+  const mins = +row.mins;
+  if (row.app_name !== 'Chrome') {
+    return { [getCat(row.app_name)]: mins };
+  }
+  const share = chromeShares?.[row.date];
+  if (!share) return { browse: mins };
+  const out = {};
+  for (const [k, p] of Object.entries(share)) out[k] = mins * p;
+  return out;
 }
 
 function parseCSV(txt) {
@@ -509,12 +591,13 @@ const BASE = { responsive:true, maintainAspectRatio:false, animation:false, plug
 // ════════════════════════════════════════════════════════════════════════════
 // Section 1 — 7-day summary strip
 // ════════════════════════════════════════════════════════════════════════════
-function buildStrip(usage) {
+function buildStrip(usage, chromeShares) {
   const dates = uniqSorted(usage.map(r => r.date)).slice(-7);
   document.getElementById('strip').innerHTML = dates.map(date => {
     const rows     = usage.filter(r => r.date === date);
     const total    = rows.reduce((s, r) => s + +r.mins, 0);
-    const deepMins = rows.filter(r => CATS.deep_work.includes(r.app_name)).reduce((s, r) => s + +r.mins, 0);
+    let deepMins   = 0;
+    rows.forEach(r => { deepMins += rowCatMins(r, chromeShares).deep_work || 0; });
     const deepPct  = total > 0 ? Math.round(deepMins / total * 100) : 0;
     const top      = [...rows].sort((a, b) => +b.mins - +a.mins)[0]?.app_name ?? '—';
     const d        = new Date(date + 'T12:00:00');
@@ -571,8 +654,20 @@ function buildCatExplorer(usage) {
 // ════════════════════════════════════════════════════════════════════════════
 // Section 2 — Category mix stacked bar
 // ════════════════════════════════════════════════════════════════════════════
-function buildMix(usage) {
+function buildMix(usage, chromeShares) {
   const dates = uniqSorted(usage.map(r => r.date)).slice(-30);
+  const dateSet = new Set(dates);
+
+  // Pre-aggregate: totals[date][cat] = minutes (with Chrome redistributed)
+  const totals = {};
+  dates.forEach(d => totals[d] = Object.fromEntries(CAT_KEYS.map(k => [k, 0])));
+  usage.forEach(r => {
+    if (!dateSet.has(r.date)) return;
+    const bd = rowCatMins(r, chromeShares);
+    for (const [k, m] of Object.entries(bd)) {
+      if (totals[r.date][k] !== undefined) totals[r.date][k] += m;
+    }
+  });
 
   document.getElementById('mix-legend').innerHTML = CAT_KEYS.map(k =>
     `<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[k]}"></span>${CAT_LABELS[k]}</span>`
@@ -584,10 +679,7 @@ function buildMix(usage) {
       labels: dates.map(dateLabel),
       datasets: CAT_KEYS.map(k => ({
         label: CAT_LABELS[k],
-        data: dates.map(date =>
-          usage.filter(r => r.date === date && getCat(r.app_name) === k)
-               .reduce((s, r) => s + +r.mins, 0)
-        ),
+        data: dates.map(date => +totals[date][k].toFixed(1)),
         backgroundColor: CAT_COLORS[k],
         borderWidth: 0,
       })),
@@ -715,7 +807,7 @@ function makeHeatColor(maxV) {
 // ════════════════════════════════════════════════════════════════════════════
 // Section 5a — Daily rhythm: category × hour line chart
 // ════════════════════════════════════════════════════════════════════════════
-function buildRhythm(sessions) {
+function buildRhythm(sessions, chromeShares) {
   // sums[cat][hour] = total session minutes; days[cat][hour] = unique dates with activity
   const sums = Object.fromEntries(CAT_KEYS.map(k => [k, new Array(24).fill(0)]));
   const days = Object.fromEntries(CAT_KEYS.map(k => [k, Array.from({length:24}, () => new Set())]));
@@ -723,9 +815,25 @@ function buildRhythm(sessions) {
   sessions.forEach(r => {
     const h = +r.hour;
     if (h < 0 || h >= 24) return;
-    const k = getCat(r.app_name);
-    sums[k][h] += +r.session_mins;
-    days[k][h].add(r.date);
+    const m = +r.session_mins;
+    if (r.app_name === 'Chrome') {
+      const share = chromeShares?.[r.date];
+      if (share) {
+        for (const [k, p] of Object.entries(share)) {
+          if (sums[k]) {
+            sums[k][h] += m * p;
+            if (m * p > 0) days[k][h].add(r.date);
+          }
+        }
+      } else {
+        sums.browse[h] += m;
+        days.browse[h].add(r.date);
+      }
+    } else {
+      const k = getCat(r.app_name);
+      sums[k][h] += m;
+      days[k][h].add(r.date);
+    }
   });
 
   const HLBLS = Array.from({length:24}, (_, h) =>
@@ -1091,11 +1199,16 @@ function buildTrends(usage) {
 // ════════════════════════════════════════════════════════════════════════════
 // Section 8 — Weekday vs weekend
 // ════════════════════════════════════════════════════════════════════════════
-function buildWdWe(usage) {
+function buildWdWe(usage, chromeShares) {
   function catAvgs(rows) {
     const n = uniqSorted(rows.map(r => r.date)).length || 1;
     const sums = Object.fromEntries(CAT_KEYS.map(k => [k, 0]));
-    rows.forEach(r => { sums[getCat(r.app_name)] += +r.mins; });
+    rows.forEach(r => {
+      const bd = rowCatMins(r, chromeShares);
+      for (const [k, m] of Object.entries(bd)) {
+        if (sums[k] !== undefined) sums[k] += m;
+      }
+    });
     return CAT_KEYS.map(k => +(sums[k] / n).toFixed(1));
   }
   const wd = usage.filter(r => { const d = new Date(r.date+'T12:00:00').getDay(); return d>=1&&d<=5; });
@@ -1255,17 +1368,21 @@ async function init() {
   document.getElementById('hdr-range').textContent =
     `${dates[0]} → ${dates[dates.length-1]}  ·  ${dates.length} days`;
 
-  buildStrip(_usage);
+  // Compute Chrome → Mac category proportions per date (used to redistribute
+  // Chrome time across categories in the Mac-side charts).
+  const chromeShares = buildChromeShares(chrome);
+
+  buildStrip(_usage, chromeShares);
   buildCatExplorer(_usage);
-  buildMix(_usage);
+  buildMix(_usage, chromeShares);
   buildFocus(_sessions);
   buildBounds(_usage);
-  buildRhythm(_sessions);
+  buildRhythm(_sessions, chromeShares);
   buildGrid14(_sessions);
   buildFortnight(_usage, _sessions);
   buildChrome(chrome);
   buildTrends(_usage);
-  buildWdWe(_usage);
+  buildWdWe(_usage, chromeShares);
 }
 
 init();

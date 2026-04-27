@@ -85,6 +85,7 @@ screentime/
 - Open: `http://localhost:8000/dashboard/`
 - Mac app categories (Deep Work / Comms / Browse / Entertainment / System) defined in `CATS` near the top of index.html
 - Chrome domain categories (Dev / Research / Entertainment / Comms / Shopping / Search / Other) defined in `CHROME_CATS` just below `CATS`. Suffix-matched: `console.firebase.google.com` → Dev. `app.blackbox.ai` excluded as background noise.
+- **Chrome → Mac category overrides** in `CHROME_TO_MAC_CAT` (just below `CHROME_CATS`). For Mac-side charts, Chrome time is *redistributed* across Mac categories using each day's domain breakdown (e.g., time on `claude.ai` counts as Deep Work, not Browse). Only affects: 7-day strip's % deep work, Daily Category Mix, Daily Rhythm, Weekday vs Weekend. The Chrome breakdown panel is untouched. To add/remove a domain → edit the `deep_work` / `entertainment` arrays in this constant. Anything not listed defaults to Browse.
 - Sections (in order): 7-day summary, app categories explorer, daily category mix, focus quality, workday bounds, **daily rhythm (category × hour line)**, **last 14-day raw activity grid**, **fortnight comparison (last 14d vs prior 14d)**, **Chrome category breakdown**, app trends, weekday vs weekend
 - Fortnight comparison shows: workday-boundary shift, focus-quality stat tiles (avg session / longest / per-day), top-10 apps movement table
 
