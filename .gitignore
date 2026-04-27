@@ -1,0 +1,21 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Env / secrets
+.env
+.env.*
+
+# Logs
+*.log
+
+# Personal data — kept local, never committed
+*.csv

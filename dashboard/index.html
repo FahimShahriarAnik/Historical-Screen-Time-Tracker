@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mac Screen Time</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f1117;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    header {
+      padding: 24px 32px 16px;
+      border-bottom: 1px solid #1e2235;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+    header h1 { font-size: 18px; font-weight: 600; color: #f1f5f9; }
+    header p  { font-size: 13px; color: #64748b; }
+
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .full { grid-column: 1 / -1; }
+
+    .card {
+      background: #1a1d2e;
+      border: 1px solid #1e2235;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card h2 {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #64748b; margin-bottom: 4px;
+    }
+    .card .sub { font-size: 12px; color: #475569; margin-bottom: 14px; }
+
+    .chart-wrap { position: relative; }
+    .chart-wrap.h200 { height: 200px; }
+    .chart-wrap.h240 { height: 240px; }
+    .chart-wrap.h300 { height: 300px; }
+    .chart-wrap.h360 { height: 360px; }
+    .chart-wrap.h180 { height: 180px; }
+
+    /* ── 7-day strip ── */
+    .strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+    .day-tile {
+      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px;
+      padding: 12px 8px; text-align: center;
+    }
+    .day-tile .dt-label  { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .day-tile .dt-total  { font-size: 20px; font-weight: 700; margin: 5px 0 3px; font-variant-numeric: tabular-nums; }
+    .day-tile .dt-deep   { font-size: 11px; color: #6366f1; margin-bottom: 3px; }
+    .day-tile .dt-app    { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .green  { color: #22c55e; }
+    .yellow { color: #f59e0b; }
+    .red    { color: #ef4444; }
+
+    /* ── Legend ── */
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #94a3b8; }
+    .legend-dot  { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    /* ── Category Explorer ── */
+    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .cat-block { background: #0f1117; border-radius: 8px; padding: 12px; }
+    .cat-block-title {
+      display: flex; align-items: center; gap: 7px;
+      font-weight: 600; font-size: 12px; color: #e2e8f0; margin-bottom: 8px;
+    }
+    .cat-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .app-chip {
+      font-size: 11px; padding: 2px 9px; border-radius: 999px;
+      background: #1e2235; color: #64748b; cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .app-chip.used { color: #94a3b8; }
+    .app-chip:hover { background: #2d3148; color: #e2e8f0; }
+    .app-chip:active { transform: scale(0.96); }
+
+    /* ── Heatmap / Grid ── */
+    .heatmap-outer { overflow-x: auto; padding-bottom: 8px; }
+    .grid14 {
+      display: grid; grid-template-columns: 38px repeat(14, 1fr);
+      gap: 2px; min-width: 480px;
+    }
+    .hm-cell { height: 16px; border-radius: 2px; }
+    .hm-label {
+      font-size: 10px; color: #475569;
+      display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+    }
+    .hm-head {
+      font-size: 10px; font-weight: 600; color: #94a3b8;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 28px; line-height: 1.1;
+    }
+    .hm-head .hm-dow { font-size: 9px; color: #64748b; font-weight: 500; }
+    .hm-scale {
+      margin-top: 10px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #475569;
+    }
+    .hm-scale-bar {
+      flex: 1; max-width: 160px; height: 8px; border-radius: 4px;
+      background: linear-gradient(to right, #1e1b4b, #1d4ed8, #0891b2, #16a34a, #eab308);
+    }
+
+    /* ── Fortnight comparison ── */
+    .fort-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .fort-block { background: #0f1117; border: 1px solid #1e2235; border-radius: 8px; padding: 14px; }
+    .fort-block-title {
+      font-size: 11px; font-weight: 600; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+    }
+    .fort-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .fort-tile {
+      background: #1a1d2e; border: 1px solid #1e2235; border-radius: 6px;
+      padding: 10px 12px; text-align: left;
+    }
+    .fort-tile .ft-lbl   { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .fort-tile .ft-val   { font-size: 22px; font-weight: 700; color: #f1f5f9; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+    .fort-tile .ft-prior { font-size: 11px; color: #475569; }
+    .fort-tile .ft-delta { font-size: 12px; font-weight: 600; margin-left: 6px; font-variant-numeric: tabular-nums; }
+    .ft-up   { color: #22c55e; }
+    .ft-down { color: #ef4444; }
+    .ft-flat { color: #64748b; }
+    .fort-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .fort-table th, .fort-table td {
+      padding: 6px 8px; text-align: right; font-variant-numeric: tabular-nums;
+      border-bottom: 1px solid #1e2235;
+    }
+    .fort-table th { color: #64748b; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .fort-table td.app-cell { text-align: left; color: #cbd5e1; }
+    .fort-table td.delta-up   { color: #22c55e; font-weight: 600; }
+    .fort-table td.delta-down { color: #ef4444; font-weight: 600; }
+    .fort-table td.delta-flat { color: #64748b; }
+
+    /* ── Chrome ── */
+    .chrome-callout {
+      background: #111a2e; border: 1px solid #1e3a5f;
+      border-radius: 6px; padding: 10px 12px; margin-bottom: 14px;
+      font-size: 11px; color: #64748b; line-height: 1.7;
+    }
+    .chrome-callout strong { color: #94a3b8; }
+    .chrome-rows { display: flex; flex-direction: column; gap: 7px; }
+    .cr { display: flex; align-items: center; gap: 8px; }
+    .cr-domain  {
+      width: 155px; flex-shrink: 0; font-size: 12px; color: #cbd5e1;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cr-domain .idle-warn { font-size: 10px; color: #f59e0b; margin-left: 3px; }
+    .cr-track   { flex: 1; height: 12px; background: #0f1117; border-radius: 2px; overflow: hidden; }
+    .cr-bar     { height: 100%; border-radius: 2px; }
+    .cr-work    { background: #14b8a6; }   /* teal — matches browse category */
+    .cr-other   { background: #374151; }
+    .cr-meta    { width: 80px; flex-shrink: 0; font-size: 11px; color: #475569; text-align: right; font-variant-numeric: tabular-nums; line-height: 1.3; }
+
+    /* Chrome stacked bar (headline) */
+    .chrome-stacked { margin: 6px 0 18px; }
+    .chrome-stacked-bar {
+      display: flex; height: 28px; border-radius: 6px; overflow: hidden;
+      background: #0f1117; border: 1px solid #1e2235;
+    }
+    .chrome-stacked-seg {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; color: #f1f5f9;
+      white-space: nowrap; overflow: hidden;
+      transition: filter 0.15s;
+    }
+    .chrome-stacked-seg:hover { filter: brightness(1.15); }
+    .chrome-stacked-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 11px; }
+    .chrome-stacked-legend .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+    .chrome-stacked-legend .css-pct { color: #64748b; margin-left: 4px; font-variant-numeric: tabular-nums; }
+
+    /* Chrome per-category panels */
+    .chrome-cats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .chrome-cat-panel {
+      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px; padding: 12px 14px;
+    }
+    .ccp-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .ccp-name { font-size: 12px; font-weight: 600; color: #e2e8f0; }
+    .ccp-meta { font-size: 11px; color: #64748b; margin-left: auto; font-variant-numeric: tabular-nums; }
+    @media (max-width: 860px) { .chrome-cats { grid-template-columns: 1fr; } }
+
+    /* ── App Detail panel ── */
+    #app-detail { display: none; }
+    .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .detail-header h2 { font-size: 15px; font-weight: 600; color: #f1f5f9; text-transform: none; letter-spacing: 0; }
+    .detail-close {
+      background: #1e2235; border: 1px solid #2d3148; color: #64748b;
+      border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 13px;
+    }
+    .detail-close:hover { color: #e2e8f0; }
+    .detail-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .stat-chip {
+      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px;
+      padding: 10px 14px; min-width: 120px;
+    }
+    .stat-chip .sc-val { font-size: 22px; font-weight: 700; color: #f1f5f9; font-variant-numeric: tabular-nums; }
+    .stat-chip .sc-lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .detail-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .err  { color: #ef4444; padding: 8px 0; font-size: 13px; }
+    .dim  { color: #475569; font-size: 12px; }
+    code  { color: #94a3b8; background: #0f1117; padding: 2px 5px; border-radius: 3px; font-size: 12px; }
+
+    @media (max-width: 860px) {
+      main { grid-template-columns: 1fr; padding: 12px; }
+      .full { grid-column: 1; }
+      .strip { grid-template-columns: repeat(4, 1fr); }
+      .cat-grid { grid-template-columns: repeat(2, 1fr); }
+      .detail-charts { grid-template-columns: 1fr; }
+      .fort-grid { grid-template-columns: 1fr; }
+      .fort-tiles { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Mac Screen Time</h1>
+  <p id="hdr-range">loading…</p>
+</header>
+
+<main id="main">
+
+  <!-- 1. Seven-day summary -->
+  <div class="card full">
+    <h2>Last 7 Days</h2>
+    <div class="strip" id="strip"></div>
+  </div>
+
+  <!-- Category Explorer -->
+  <div class="card full">
+    <h2>App Categories</h2>
+    <p class="sub">How apps are classified in the charts below · Click any chip to drill down</p>
+    <div class="cat-grid" id="cat-grid"></div>
+  </div>
+
+  <!-- 2. Category mix -->
+  <div class="card full">
+    <h2>Daily Category Mix</h2>
+    <p class="sub">Last 30 days — stacked by app category</p>
+    <div class="legend" id="mix-legend"></div>
+    <div class="chart-wrap h360"><canvas id="c-mix"></canvas></div>
+  </div>
+
+  <!-- 3. Focus quality -->
+  <div class="card">
+    <h2>Focus Quality</h2>
+    <p class="sub">Avg session length (line) · session count (bars) · &gt;1 min sessions only</p>
+    <div class="chart-wrap h240"><canvas id="c-focus"></canvas></div>
+  </div>
+
+  <!-- 4. Workday bounds -->
+  <div class="card">
+    <h2>Workday Boundaries</h2>
+    <p class="sub">First → last app use each day (last 30 days)</p>
+    <div class="chart-wrap h240"><canvas id="c-bounds"></canvas></div>
+  </div>
+
+  <!-- 5a. Daily rhythm -->
+  <div class="card">
+    <h2>Daily Rhythm — Category by Hour</h2>
+    <p class="sub">Avg minutes per hour, by app category (all-time)</p>
+    <div class="legend" id="rhythm-legend"></div>
+    <div class="chart-wrap h300"><canvas id="c-rhythm"></canvas></div>
+  </div>
+
+  <!-- 5b. Last 14 days raw grid -->
+  <div class="card">
+    <h2>Last 14 Days — Activity Grid</h2>
+    <p class="sub">Each cell = total session minutes for that day &amp; hour</p>
+    <div class="heatmap-outer">
+      <div class="grid14" id="grid14"></div>
+      <div class="hm-scale">
+        <span>Low</span>
+        <div class="hm-scale-bar"></div>
+        <span>High</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5c. Fortnight comparison -->
+  <div class="card full">
+    <h2>Last 14 Days vs Prior 14 Days</h2>
+    <p class="sub" id="fort-range">comparing fortnights</p>
+    <div class="fort-grid">
+      <div class="fort-block">
+        <div class="fort-block-title">Workday boundaries</div>
+        <div class="chart-wrap h180"><canvas id="c-fort-bounds"></canvas></div>
+      </div>
+      <div class="fort-block">
+        <div class="fort-block-title">Focus quality</div>
+        <div class="fort-tiles" id="fort-tiles"></div>
+      </div>
+    </div>
+    <div class="fort-block" style="margin-top:16px">
+      <div class="fort-block-title">Top apps movement</div>
+      <table class="fort-table" id="fort-apps"></table>
+    </div>
+  </div>
+
+  <!-- 6. Chrome breakdown -->
+  <div class="card full">
+    <h2>Chrome — Category Breakdown</h2>
+    <p class="sub">Last 30 days · grouped by purpose · <code>app.blackbox.ai</code> excluded as background noise</p>
+    <div class="chrome-callout">
+      <strong>How Chrome time is measured:</strong> wall-clock time a tab stays open, not active attention.
+      Each navigation is capped at 10 min before summing. Domains marked
+      <strong style="color:#f59e0b">⚠</strong> have avg &gt;8 min/navigation — likely idle tabs.
+      <strong>Visit count</strong> (grey) is usually the more reliable signal.
+    </div>
+    <div class="chrome-stacked" id="chrome-stacked"></div>
+    <div class="chrome-cats" id="chrome-cats"></div>
+  </div>
+
+  <!-- 7. App trends -->
+  <div class="card">
+    <h2>App Trends — 7-Day Rolling Avg</h2>
+    <p class="sub">Top 8 apps over the full date range</p>
+    <div class="chart-wrap h300"><canvas id="c-trends"></canvas></div>
+  </div>
+
+  <!-- 8. Weekday vs weekend -->
+  <div class="card full">
+    <h2>Weekday vs Weekend</h2>
+    <p class="sub">Average daily minutes by category</p>
+    <div class="chart-wrap h180"><canvas id="c-wdwe"></canvas></div>
+  </div>
+
+  <!-- App Detail drill-down -->
+  <div class="card full" id="app-detail">
+    <div class="detail-header">
+      <h2 id="detail-title">App Detail</h2>
+      <button class="detail-close" id="detail-close">✕ close</button>
+    </div>
+    <div class="detail-stats" id="detail-stats"></div>
+    <div class="detail-charts">
+      <div>
+        <p class="sub">Daily usage — last 30 days</p>
+        <div class="chart-wrap h200"><canvas id="detail-daily"></canvas></div>
+      </div>
+      <div>
+        <p class="sub">When do you use it? (avg session mins by hour)</p>
+        <div class="chart-wrap h200"><canvas id="detail-hourly"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// Constants — edit CATS here to reclassify apps
+// ════════════════════════════════════════════════════════════════════════════
+const CATS = {
+  deep_work:     ['VS Code','PyCharm','Xcode','Terminal','Obsidian','Claude','Figma','Linear','Notion','SuperWhisper'],
+  comms:         ['Slack','WhatsApp','Messages','Discord','Zoom','Telegram','FaceTime','Mail'],
+  browse:        ['Chrome','Safari'],       // Chrome = Browse, NOT Deep Work
+  entertainment: ['Spotify','Music','Podcasts','QuickTime'],
+  system:        ['Finder','System Settings','Archive Utility','Activity Monitor','Preview','1Password'],
+};
+const CAT_LABELS = { deep_work:'Deep Work', comms:'Comms', browse:'Browse', entertainment:'Entertainment', system:'System', other:'Other' };
+const CAT_COLORS = {
+  deep_work:    '#6366f1',   // indigo
+  comms:        '#f59e0b',   // amber
+  browse:       '#14b8a6',   // teal  (distinct from indigo)
+  entertainment:'#ec4899',   // pink
+  system:       '#6b7280',   // gray
+  other:        '#1e293b',   // near-black
+};
+const CAT_KEYS = ['deep_work','comms','browse','entertainment','system','other'];
+
+const WORK_DOMAINS = new Set([
+  'github.com','stackoverflow.com','docs.google.com','drive.google.com',
+  'sheets.google.com','slides.google.com','mail.google.com','meet.google.com',
+  'anthropic.com','claude.ai','app.blackbox.ai',
+  'linear.app','notion.so','figma.com','vercel.com','railway.app',
+  'npmjs.com','developer.mozilla.org','arxiv.org','scholar.google.com',
+  'chi2026.acm.org','researchgate.net','pypi.org','docs.python.org',
+  'developers.google.com','aws.amazon.com','console.aws.amazon.com',
+]);
+
+// Chrome domain → category (suffix-matched: console.firebase.google.com → dev)
+const CHROME_CATS = {
+  dev: [
+    'github.com','vercel.com','supabase.com','claude.ai','aistudio.google.com',
+    'perplexity.ai','stackoverflow.com','npmjs.com','console.firebase.google.com',
+    'developer.mozilla.org','pypi.org','docs.python.org','railway.app','localhost',
+  ],
+  research: [
+    'acm.org','arxiv.org','wikipedia.org','substack.com','medium.com','docs.google.com',
+    'scholar.google.com','researchgate.net',
+  ],
+  entertainment: [
+    'youtube.com','netflix.com','reddit.com','twitch.tv','twitter.com','x.com',
+    'instagram.com','tiktok.com',
+  ],
+  comms: [
+    'mail.google.com','linkedin.com','calendar.google.com','web.whatsapp.com',
+    'messenger.com','meet.google.com','slack.com','discord.com',
+  ],
+  shopping: [
+    'amazon.com','jomashop.com','fragrancenet.com','fragrancex.com','theticketworld.com',
+    'ebay.com','etsy.com',
+  ],
+  search: ['google.com','duckduckgo.com','bing.com'],
+};
+const CHROME_CAT_LABELS = {
+  dev:'Dev / Deep Work', research:'Research', entertainment:'Entertainment',
+  comms:'Comms', shopping:'Shopping', search:'Search', other:'Other',
+};
+const CHROME_CAT_COLORS = {
+  dev:           '#4f46e5',  // deeper indigo
+  research:      '#0ea5e9',  // sky blue
+  entertainment: '#ec4899',  // pink
+  comms:         '#f59e0b',  // amber
+  shopping:      '#a855f7',  // purple
+  search:        '#64748b',  // slate
+  other:         '#374151',  // dark gray
+};
+const CHROME_CAT_KEYS = ['dev','research','entertainment','comms','shopping','search','other'];
+
+// Domains to exclude entirely (automated / background noise)
+const CHROME_EXCLUDE = new Set(['app.blackbox.ai']);
+
+const PALETTE = ['#6366f1','#14b8a6','#22c55e','#f59e0b','#ec4899','#06b6d4','#a855f7','#f97316'];
+
+// Module-scope data (set in init, used by detail panel)
+let _usage = [], _sessions = [];
+
+// ════════════════════════════════════════════════════════════════════════════
+// Utilities
+// ════════════════════════════════════════════════════════════════════════════
+function getCat(name) {
+  for (const [k, apps] of Object.entries(CATS)) if (apps.includes(name)) return k;
+  return 'other';
+}
+
+function getChromeCat(domain) {
+  if (!domain) return 'other';
+  const d = domain.toLowerCase();
+  for (const [k, list] of Object.entries(CHROME_CATS)) {
+    for (const entry of list) {
+      if (d === entry || d.endsWith('.' + entry)) return k;
+    }
+  }
+  return 'other';
+}
+
+function parseCSV(txt) {
+  const lines = txt.trim().split('\n');
+  if (lines.length < 2) return [];
+  const hdr = lines[0].split(',').map(h => h.trim());
+  return lines.slice(1).map(ln => {
+    const v = ln.split(',');
+    const o = {};
+    hdr.forEach((h, i) => o[h] = (v[i] ?? '').trim());
+    return o;
+  });
+}
+
+function uniqSorted(arr) { return [...new Set(arr)].sort(); }
+
+function dateLabel(s) {
+  return new Date(s + 'T12:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+
+function timeToHour(s) {
+  if (!s) return 0;
+  const [h, m, sec] = s.split(':').map(Number);
+  return h + (m || 0) / 60 + (sec || 0) / 3600;
+}
+
+function fmtHour(h) {
+  const H = Math.floor(h) % 24, m = Math.round((h - Math.floor(h)) * 60);
+  const ampm = H < 12 ? 'AM' : 'PM';
+  const H12 = H % 12 || 12;
+  return m ? `${H12}:${m.toString().padStart(2,'0')} ${ampm}` : `${H12} ${ampm}`;
+}
+
+function threshold(m) { return m < 120 ? 'green' : m <= 240 ? 'yellow' : 'red'; }
+
+function fmtMins(m) { return m >= 60 ? `${(m/60).toFixed(1)}h` : `${Math.round(m)}m`; }
+
+// ════════════════════════════════════════════════════════════════════════════
+// Chart.js baseline
+// ════════════════════════════════════════════════════════════════════════════
+Chart.defaults.color       = '#64748b';
+Chart.defaults.borderColor = '#1e2235';
+Chart.defaults.font.size   = 11;
+Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+
+const TIP  = { backgroundColor:'#1e2235', titleColor:'#e2e8f0', bodyColor:'#94a3b8', borderColor:'#2d3148', borderWidth:1 };
+const BASE = { responsive:true, maintainAspectRatio:false, animation:false, plugins:{ legend:{ display:false }, tooltip:TIP } };
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 1 — 7-day summary strip
+// ════════════════════════════════════════════════════════════════════════════
+function buildStrip(usage) {
+  const dates = uniqSorted(usage.map(r => r.date)).slice(-7);
+  document.getElementById('strip').innerHTML = dates.map(date => {
+    const rows     = usage.filter(r => r.date === date);
+    const total    = rows.reduce((s, r) => s + +r.mins, 0);
+    const deepMins = rows.filter(r => CATS.deep_work.includes(r.app_name)).reduce((s, r) => s + +r.mins, 0);
+    const deepPct  = total > 0 ? Math.round(deepMins / total * 100) : 0;
+    const top      = [...rows].sort((a, b) => +b.mins - +a.mins)[0]?.app_name ?? '—';
+    const d        = new Date(date + 'T12:00:00');
+    const cls      = threshold(total);
+    return `<div class="day-tile">
+      <div class="dt-label">${d.toLocaleDateString('en-US',{weekday:'short'})}<br>${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+      <div class="dt-total ${cls}">${Math.round(total)}m</div>
+      <div class="dt-deep">${deepPct}% deep work</div>
+      <div class="dt-app"><span class="app-chip used" data-app="${top}" style="background:none;padding:0">${top}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Category Explorer
+// ════════════════════════════════════════════════════════════════════════════
+function buildCatExplorer(usage) {
+  // Apps that actually appear in usage data
+  const usedApps = new Set(usage.map(r => r.app_name));
+
+  // All defined category blocks
+  const blocks = CAT_KEYS.filter(k => k !== 'other').map(k => {
+    const chips = CATS[k].map(app => {
+      const cls = usedApps.has(app) ? 'app-chip used' : 'app-chip';
+      return `<span class="${cls}" data-app="${app}">${app}</span>`;
+    }).join('');
+    return `<div class="cat-block">
+      <div class="cat-block-title">
+        <span class="legend-dot" style="background:${CAT_COLORS[k]}"></span>
+        ${CAT_LABELS[k]}
+      </div>
+      <div class="cat-chips">${chips}</div>
+    </div>`;
+  });
+
+  // Other block: apps in usage not in any defined category
+  const otherApps = [...usedApps].filter(a => getCat(a) === 'other').sort();
+  if (otherApps.length) {
+    const chips = otherApps.map(app =>
+      `<span class="app-chip used" data-app="${app}">${app}</span>`
+    ).join('');
+    blocks.push(`<div class="cat-block">
+      <div class="cat-block-title">
+        <span class="legend-dot" style="background:${CAT_COLORS.other}"></span>
+        Other (uncategorised)
+      </div>
+      <div class="cat-chips">${chips}</div>
+    </div>`);
+  }
+
+  document.getElementById('cat-grid').innerHTML = blocks.join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 2 — Category mix stacked bar
+// ════════════════════════════════════════════════════════════════════════════
+function buildMix(usage) {
+  const dates = uniqSorted(usage.map(r => r.date)).slice(-30);
+
+  document.getElementById('mix-legend').innerHTML = CAT_KEYS.map(k =>
+    `<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[k]}"></span>${CAT_LABELS[k]}</span>`
+  ).join('');
+
+  new Chart(document.getElementById('c-mix'), {
+    type: 'bar',
+    data: {
+      labels: dates.map(dateLabel),
+      datasets: CAT_KEYS.map(k => ({
+        label: CAT_LABELS[k],
+        data: dates.map(date =>
+          usage.filter(r => r.date === date && getCat(r.app_name) === k)
+               .reduce((s, r) => s + +r.mins, 0)
+        ),
+        backgroundColor: CAT_COLORS[k],
+        borderWidth: 0,
+      })),
+    },
+    options: {
+      ...BASE,
+      scales: {
+        x: { stacked:true, grid:{ display:false }, ticks:{ maxRotation:45 } },
+        y: { stacked:true, title:{ display:true, text:'Minutes', color:'#64748b' } },
+      },
+      plugins: {
+        ...BASE.plugins,
+        tooltip: { ...TIP, mode:'index',
+          callbacks: { label: ctx => `${ctx.dataset.label}: ${Math.round(ctx.raw)} min` } },
+      },
+    },
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 3 — Focus quality (dual axis)
+// ════════════════════════════════════════════════════════════════════════════
+function buildFocus(sessions) {
+  const dates  = uniqSorted(sessions.map(r => r.date)).slice(-30);
+  const avgs   = [], counts = [];
+  dates.forEach(date => {
+    const s = sessions.filter(r => r.date === date && +r.session_mins > 1);
+    counts.push(s.length);
+    avgs.push(s.length ? +(s.reduce((a, r) => a + +r.session_mins, 0) / s.length).toFixed(1) : 0);
+  });
+
+  new Chart(document.getElementById('c-focus'), {
+    type: 'bar',
+    data: {
+      labels: dates.map(dateLabel),
+      datasets: [
+        {
+          type:'line', label:'Avg session (min)', data:avgs,
+          borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,0.08)',
+          fill:true, tension:0.35, yAxisID:'yA', pointRadius:2, borderWidth:2,
+        },
+        {
+          type:'bar', label:'Sessions/day', data:counts,
+          backgroundColor:'rgba(148,163,184,0.12)', borderWidth:0, yAxisID:'yC',
+        },
+      ],
+    },
+    options: {
+      ...BASE,
+      scales: {
+        x:  { grid:{ display:false }, ticks:{ maxRotation:45 } },
+        yA: { position:'left',  title:{ display:true, text:'Avg session (min)', color:'#6366f1' } },
+        yC: { position:'right', title:{ display:true, text:'Sessions/day',      color:'#64748b' }, grid:{ drawOnChartArea:false } },
+      },
+      plugins: {
+        ...BASE.plugins,
+        tooltip: { ...TIP, mode:'index', callbacks:{ label: ctx => `${ctx.dataset.label}: ${ctx.raw}` } },
+      },
+    },
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 4 — Workday bounds (floating bar)
+// ════════════════════════════════════════════════════════════════════════════
+function buildBounds(usage) {
+  const dates = uniqSorted(usage.map(r => r.date)).slice(-30);
+
+  const data = dates.map(date => {
+    const rows   = usage.filter(r => r.date === date);
+    const firsts = rows.map(r => timeToHour(r.first_use)).filter(h => h >= 0);
+    const lasts  = rows.map(r => timeToHour(r.last_use)).filter(h => h >= 0);
+    if (!firsts.length) return null;
+    const first = Math.min(...firsts);
+    let last    = Math.max(...lasts);
+    if (last < first) last += 24;
+    return [first, Math.min(last, 27)];
+  });
+
+  new Chart(document.getElementById('c-bounds'), {
+    type: 'bar',
+    data: {
+      labels: dates.map(dateLabel),
+      datasets: [{ label:'Active span', data,
+        backgroundColor:'rgba(99,102,241,0.45)', borderColor:'#6366f1',
+        borderWidth:1, borderRadius:3, borderSkipped:false }],
+    },
+    options: {
+      ...BASE,
+      scales: {
+        x: { grid:{ display:false }, ticks:{ maxRotation:45 } },
+        y: { min:0, max:27,
+             ticks:{ stepSize:3, callback: v => fmtHour(v) },
+             title:{ display:true, text:'Time of day', color:'#64748b' } },
+      },
+      plugins: {
+        ...BASE.plugins,
+        tooltip: { ...TIP, callbacks:{ label: ctx => {
+          if (!ctx.raw) return 'No data';
+          return `${fmtHour(ctx.raw[0])} → ${fmtHour(ctx.raw[1])}  (${(ctx.raw[1]-ctx.raw[0]).toFixed(1)}h span)`;
+        }}},
+      },
+    },
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Heat color ramp — shared by grid14
+// ════════════════════════════════════════════════════════════════════════════
+function makeHeatColor(maxV) {
+  const STOPS = [[30,27,75],[29,78,216],[8,145,178],[22,163,74],[234,179,8]];
+  return function (v) {
+    if (v === 0) return '#0d0f1a';
+    const t   = Math.pow(v / maxV, 0.6);
+    const seg = t * (STOPS.length - 1);
+    const lo  = Math.floor(seg), hi = Math.min(lo + 1, STOPS.length - 1);
+    const f   = seg - lo;
+    const r   = Math.round(STOPS[lo][0] + f * (STOPS[hi][0] - STOPS[lo][0]));
+    const g   = Math.round(STOPS[lo][1] + f * (STOPS[hi][1] - STOPS[lo][1]));
+    const b   = Math.round(STOPS[lo][2] + f * (STOPS[hi][2] - STOPS[lo][2]));
+    return `rgb(${r},${g},${b})`;
+  };
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 5a — Daily rhythm: category × hour line chart
+// ════════════════════════════════════════════════════════════════════════════
+function buildRhythm(sessions) {
+  // sums[cat][hour] = total session minutes; days[cat][hour] = unique dates with activity
+  const sums = Object.fromEntries(CAT_KEYS.map(k => [k, new Array(24).fill(0)]));
+  const days = Object.fromEntries(CAT_KEYS.map(k => [k, Array.from({length:24}, () => new Set())]));
+
+  sessions.forEach(r => {
+    const h = +r.hour;
+    if (h < 0 || h >= 24) return;
+    const k = getCat(r.app_name);
+    sums[k][h] += +r.session_mins;
+    days[k][h].add(r.date);
+  });
+
+  const HLBLS = Array.from({length:24}, (_, h) =>
+    h === 0 ? '12am' : h < 12 ? `${h}a` : h === 12 ? '12pm' : `${h-12}p`
+  );
+
+  document.getElementById('rhythm-legend').innerHTML = CAT_KEYS.map(k =>
+    `<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[k]}"></span>${CAT_LABELS[k]}</span>`
+  ).join('');
+
+  new Chart(document.getElementById('c-rhythm'), {
+    type: 'line',
+    data: {
+      labels: HLBLS,
+      datasets: CAT_KEYS.map(k => ({
+        label: CAT_LABELS[k],
+        data: sums[k].map((s, h) => {
+          const n = days[k][h].size;
+          return n ? +(s / n).toFixed(1) : 0;
+        }),
+        borderColor: CAT_COLORS[k],
+        backgroundColor: CAT_COLORS[k] + '22',
+        tension: 0.35, borderWidth: 1.8, pointRadius: 0, fill: false,
+      })),
+    },
+    options: {
+      ...BASE,
+      interaction: { mode:'index', intersect:false },
+      scales: {
+        x: { grid:{ display:false } },
+        y: { title:{ display:true, text:'Avg minutes per active hour', color:'#64748b' } },
+      },
+      plugins: {
+        ...BASE.plugins,
+        tooltip: { ...TIP, callbacks:{ label: ctx => `${ctx.dataset.label}: ${ctx.raw} min` } },
+      },
+    },
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 5b — Last 14 days raw activity grid (no averaging)
+// ════════════════════════════════════════════════════════════════════════════
+function buildGrid14(sessions) {
+  const allDates = uniqSorted(sessions.map(r => r.date));
+  const dates    = allDates.slice(-14);
+  if (!dates.length) return;
+
+  // grid[hour][dateIdx] = total session minutes
+  const grid = Array.from({length:24}, () => new Array(dates.length).fill(0));
+  const dateIdx = Object.fromEntries(dates.map((d, i) => [d, i]));
+
+  sessions.forEach(r => {
+    const i = dateIdx[r.date];
+    if (i === undefined) return;
+    const h = +r.hour;
+    if (h < 0 || h >= 24) return;
+    grid[h][i] += +r.session_mins;
+  });
+
+  const maxV = grid.flat().reduce((m, v) => Math.max(m, v), 0.1);
+  const heatColor = makeHeatColor(maxV);
+
+  const c = document.getElementById('grid14');
+  let html = '<div class="hm-cell hm-label"></div>';
+  dates.forEach(d => {
+    const dt = new Date(d + 'T12:00:00');
+    const dow = dt.toLocaleDateString('en-US', { weekday:'short' });
+    const dm  = dt.toLocaleDateString('en-US', { month:'numeric', day:'numeric' });
+    html += `<div class="hm-cell hm-head"><div>${dm}</div><div class="hm-dow">${dow}</div></div>`;
+  });
+
+  for (let h = 0; h < 24; h++) {
+    const lbl = h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`;
+    html += `<div class="hm-cell hm-label">${lbl}</div>`;
+    for (let i = 0; i < dates.length; i++) {
+      const v = grid[h][i];
+      const dt = new Date(dates[i] + 'T12:00:00');
+      const dlbl = dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+      const tip = v > 0.05 ? `${dlbl}, ${lbl}: ${v.toFixed(0)} min` : `${dlbl}, ${lbl}: no activity`;
+      html += `<div class="hm-cell" style="background:${heatColor(v)}" title="${tip}"></div>`;
+    }
+  }
+  c.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 5c — Fortnight comparison (last 14d vs prior 14d)
+// ════════════════════════════════════════════════════════════════════════════
+function buildFortnight(usage, sessions) {
+  const allDates = uniqSorted(usage.map(r => r.date));
+  if (allDates.length < 14) return;
+
+  const recent = allDates.slice(-14);
+  const prior  = allDates.slice(-28, -14);
+  const recentSet = new Set(recent);
+  const priorSet  = new Set(prior);
+
+  document.getElementById('fort-range').textContent =
+    `recent: ${recent[0]} → ${recent[recent.length-1]}  ·  prior: ${prior[0] ?? '—'} → ${prior[prior.length-1] ?? '—'}`;
+
+  // ── Workday boundaries (avg first-use → avg last-use, per fortnight) ──
+  function avgBounds(dates) {
+    const dateSet = new Set(dates);
+    const firstByDay = {}, lastByDay = {};
+    usage.filter(r => dateSet.has(r.date)).forEach(r => {
+      const f = timeToHour(r.first_use), l = timeToHour(r.last_use);
+      if (firstByDay[r.date] === undefined || f < firstByDay[r.date]) firstByDay[r.date] = f;
+      if (lastByDay[r.date]  === undefined || l > lastByDay[r.date])  lastByDay[r.date]  = l;
+    });
+    const firsts = Object.values(firstByDay), lasts = Object.values(lastByDay);
+    if (!firsts.length) return null;
+    const avg = arr => arr.reduce((s,v) => s+v, 0) / arr.length;
+    return [avg(firsts), avg(lasts)];
+  }
+  const recentBounds = avgBounds(recent);
+  const priorBounds  = avgBounds(prior);
+
+  new Chart(document.getElementById('c-fort-bounds'), {
+    type: 'bar',
+    data: {
+      labels: ['Prior 14d', 'Recent 14d'],
+      datasets: [{
+        label: 'Active span',
+        data: [priorBounds, recentBounds],
+        backgroundColor: ['rgba(100,116,139,0.45)','rgba(99,102,241,0.45)'],
+        borderColor:     ['#64748b','#6366f1'],
+        borderWidth: 1, borderRadius: 3, borderSkipped: false,
+      }],
+    },
+    options: {
+      ...BASE, indexAxis: 'y',
+      scales: {
+        x: { min: 0, max: 24, ticks:{ stepSize:3, callback: v => fmtHour(v) },
+             title:{ display:true, text:'Time of day', color:'#64748b' } },
+        y: { grid:{ display:false } },
+      },
+      plugins: {
+        ...BASE.plugins,
+        tooltip: { ...TIP, callbacks:{ label: ctx => {
+          if (!ctx.raw) return 'No data';
+          return `${fmtHour(ctx.raw[0])} → ${fmtHour(ctx.raw[1])}  (${(ctx.raw[1]-ctx.raw[0]).toFixed(1)}h)`;
+        }}},
+      },
+    },
+  });
+
+  // ── Focus-quality tiles ──
+  function focusStats(dateSet, dayCount) {
+    const s = sessions.filter(r => dateSet.has(r.date) && +r.session_mins > 1);
+    const total = s.reduce((a, r) => a + +r.session_mins, 0);
+    const avg   = s.length ? total / s.length : 0;
+    const max   = s.reduce((m, r) => Math.max(m, +r.session_mins), 0);
+    const perDay= s.length / dayCount;
+    return { avg, max, perDay };
+  }
+  const fr = focusStats(recentSet, 14);
+  const fp = focusStats(priorSet, 14);
+
+  function fmtDelta(rec, pri, suffix='m') {
+    const d = rec - pri;
+    if (Math.abs(d) < 0.05) return `<span class="ft-delta ft-flat">±0</span>`;
+    const cls = d > 0 ? 'ft-up' : 'ft-down';
+    const arrow = d > 0 ? '▲' : '▼';
+    return `<span class="ft-delta ${cls}">${arrow} ${Math.abs(d).toFixed(1)}${suffix}</span>`;
+  }
+
+  const tiles = [
+    { lbl:'Avg session',    val:`${fr.avg.toFixed(1)}m`,    prior:`prior ${fp.avg.toFixed(1)}m`,    delta:fmtDelta(fr.avg, fp.avg, 'm') },
+    { lbl:'Longest session',val:`${fr.max.toFixed(0)}m`,    prior:`prior ${fp.max.toFixed(0)}m`,    delta:fmtDelta(fr.max, fp.max, 'm') },
+    { lbl:'Sessions / day', val:`${fr.perDay.toFixed(1)}`,  prior:`prior ${fp.perDay.toFixed(1)}`,  delta:fmtDelta(fr.perDay, fp.perDay, '') },
+  ];
+  document.getElementById('fort-tiles').innerHTML = tiles.map(t =>
+    `<div class="fort-tile">
+      <div class="ft-lbl">${t.lbl}</div>
+      <div class="ft-val">${t.val} ${t.delta}</div>
+      <div class="ft-prior">${t.prior}</div>
+    </div>`
+  ).join('');
+
+  // ── Top apps movement ──
+  function appTotals(dateSet) {
+    const t = {};
+    usage.filter(r => dateSet.has(r.date) && r.app_name !== 'Maps').forEach(r => {
+      t[r.app_name] = (t[r.app_name] ?? 0) + +r.mins;
+    });
+    return t;
+  }
+  const recentT = appTotals(recentSet);
+  const priorT  = appTotals(priorSet);
+  const allApps = new Set([...Object.keys(recentT), ...Object.keys(priorT)]);
+  const rows = [...allApps].map(app => {
+    const r = recentT[app] ?? 0, p = priorT[app] ?? 0;
+    return { app, recent:r, prior:p, delta:r - p };
+  })
+  .filter(r => r.recent > 5 || r.prior > 5)            // drop trivia
+  .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
+  .slice(0, 10);
+
+  const tbl = document.getElementById('fort-apps');
+  tbl.innerHTML = `
+    <thead><tr>
+      <th style="text-align:left">App</th>
+      <th>Prior 14d</th>
+      <th>Recent 14d</th>
+      <th>Δ</th>
+    </tr></thead>
+    <tbody>
+      ${rows.map(r => {
+        const cls = Math.abs(r.delta) < 1 ? 'delta-flat' : r.delta > 0 ? 'delta-up' : 'delta-down';
+        const arrow = Math.abs(r.delta) < 1 ? '±' : r.delta > 0 ? '▲' : '▼';
+        return `<tr>
+          <td class="app-cell"><span data-app="${r.app}" style="cursor:pointer">${r.app}</span></td>
+          <td>${Math.round(r.prior)}m</td>
+          <td>${Math.round(r.recent)}m</td>
+          <td class="${cls}">${arrow} ${Math.round(Math.abs(r.delta))}m</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 6 — Chrome domain breakdown
+// ════════════════════════════════════════════════════════════════════════════
+function buildChrome(chrome) {
+  const stackedEl = document.getElementById('chrome-stacked');
+  const catsEl    = document.getElementById('chrome-cats');
+  if (!chrome.length) {
+    stackedEl.innerHTML = '<p class="dim">No data. Run: <code>python3 scripts/sync_chrome.py</code></p>';
+    return;
+  }
+
+  // Last 30 days, exclude noise domains
+  const dates  = uniqSorted(chrome.map(r => r.date));
+  const cutoff = dates.slice(-30)[0] ?? '1970-01-01';
+  const recent = chrome.filter(r => r.date >= cutoff && !CHROME_EXCLUDE.has(r.domain));
+
+  // Aggregate per domain
+  const agg = {};
+  recent.forEach(r => {
+    if (!r.domain) return;
+    const e = agg[r.domain] ??= { visits:0, mins:0 };
+    e.visits += +r.visits;
+    e.mins   += +r.total_mins;
+  });
+
+  // Roll up into category buckets
+  const buckets = Object.fromEntries(CHROME_CAT_KEYS.map(k => [k, { mins:0, visits:0, domains:[] }]));
+  Object.entries(agg).forEach(([domain, s]) => {
+    const k = getChromeCat(domain);
+    buckets[k].mins   += s.mins;
+    buckets[k].visits += s.visits;
+    buckets[k].domains.push({ domain, ...s });
+  });
+
+  const totalMins = Object.values(buckets).reduce((s, b) => s + b.mins, 0);
+
+  // ── Stacked bar (headline) ──
+  const segs = CHROME_CAT_KEYS
+    .filter(k => buckets[k].mins > 0)
+    .sort((a, b) => buckets[b].mins - buckets[a].mins);
+
+  stackedEl.innerHTML = `
+    <div class="chrome-stacked-bar">
+      ${segs.map(k => {
+        const pct = (buckets[k].mins / totalMins * 100);
+        const showLabel = pct >= 6;
+        return `<div class="chrome-stacked-seg" title="${CHROME_CAT_LABELS[k]}: ${fmtMins(buckets[k].mins)} (${pct.toFixed(0)}%)"
+                  style="width:${pct}%; background:${CHROME_CAT_COLORS[k]}">
+                  ${showLabel ? `${CHROME_CAT_LABELS[k]} ${pct.toFixed(0)}%` : ''}
+                </div>`;
+      }).join('')}
+    </div>
+    <div class="chrome-stacked-legend">
+      ${segs.map(k => {
+        const pct = (buckets[k].mins / totalMins * 100).toFixed(0);
+        return `<span class="legend-item">
+          <span class="legend-dot" style="background:${CHROME_CAT_COLORS[k]}"></span>
+          ${CHROME_CAT_LABELS[k]}
+          <span class="css-pct">${fmtMins(buckets[k].mins)} · ${pct}%</span>
+        </span>`;
+      }).join('')}
+    </div>
+  `;
+
+  // ── Per-category panels (top 5 domains each) ──
+  catsEl.innerHTML = segs.map(k => {
+    const b = buckets[k];
+    const top = b.domains.sort((a, c) => c.mins - a.mins).slice(0, 5);
+    const maxM = top[0]?.mins ?? 1;
+    return `
+      <div class="chrome-cat-panel">
+        <div class="ccp-head">
+          <span class="legend-dot" style="background:${CHROME_CAT_COLORS[k]}"></span>
+          <span class="ccp-name">${CHROME_CAT_LABELS[k]}</span>
+          <span class="ccp-meta">${fmtMins(b.mins)} · ${b.visits} visits</span>
+        </div>
+        <div class="chrome-rows">
+          ${top.map(d => {
+            const pct = (d.mins / maxM * 100).toFixed(1);
+            const avgPerVisit = d.visits > 0 ? d.mins / d.visits : 0;
+            const idle = avgPerVisit >= 8;
+            const idleWarn = idle ? `<span class="idle-warn" title="avg ${avgPerVisit.toFixed(1)} min/navigation — likely idle tab">⚠</span>` : '';
+            return `<div class="cr">
+              <div class="cr-domain" title="${d.domain}">${d.domain}${idleWarn}</div>
+              <div class="cr-track"><div class="cr-bar" style="width:${pct}%; background:${CHROME_CAT_COLORS[k]}"></div></div>
+              <div class="cr-meta">${fmtMins(d.mins)}<br><span style="color:#374151">${d.visits} visits</span></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 7 — App trends (7-day rolling avg)
+// ════════════════════════════════════════════════════════════════════════════
+function buildTrends(usage) {
+  const dates = uniqSorted(usage.map(r => r.date));
+  const totals = {};
+  usage.forEach(r => { totals[r.app_name] = (totals[r.app_name] ?? 0) + +r.mins; });
+  const top8 = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0,8).map(([k]) => k);
+
+  const daily = {};
+  top8.forEach(app => {
+    daily[app] = {};
+    usage.filter(r => r.app_name === app).forEach(r => {
+      daily[app][r.date] = (daily[app][r.date] ?? 0) + +r.mins;
+    });
+  });
+
+  new Chart(document.getElementById('c-trends'), {
+    type: 'line',
+    data: {
+      labels: dates.map(dateLabel),
+      datasets: top8.map((app, i) => ({
+        label: app,
+        data: dates.map((d, idx) => {
+          const win = dates.slice(Math.max(0, idx-6), idx+1);
+          return +(win.reduce((s, dd) => s + (daily[app][dd] ?? 0), 0) / win.length).toFixed(1);
+        }),
+        borderColor: PALETTE[i], backgroundColor:'transparent',
+        tension:0.3, borderWidth:1.8, pointRadius:0,
+      })),
+    },
+    options: {
+      ...BASE,
+      scales: {
+        x: { grid:{ display:false }, ticks:{ maxRotation:45 } },
+        y: { title:{ display:true, text:'Minutes (7d avg)', color:'#64748b' } },
+      },
+      plugins: {
+        ...BASE.plugins,
+        legend: { display:true, position:'bottom', labels:{ color:'#94a3b8', boxWidth:12, padding:14, font:{ size:11 } } },
+        tooltip: { ...TIP, mode:'index', callbacks:{ label: ctx => `${ctx.dataset.label}: ${ctx.raw}m` } },
+      },
+    },
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 8 — Weekday vs weekend
+// ════════════════════════════════════════════════════════════════════════════
+function buildWdWe(usage) {
+  function catAvgs(rows) {
+    const n = uniqSorted(rows.map(r => r.date)).length || 1;
+    const sums = Object.fromEntries(CAT_KEYS.map(k => [k, 0]));
+    rows.forEach(r => { sums[getCat(r.app_name)] += +r.mins; });
+    return CAT_KEYS.map(k => +(sums[k] / n).toFixed(1));
+  }
+  const wd = usage.filter(r => { const d = new Date(r.date+'T12:00:00').getDay(); return d>=1&&d<=5; });
+  const we = usage.filter(r => { const d = new Date(r.date+'T12:00:00').getDay(); return d===0||d===6; });
+
+  new Chart(document.getElementById('c-wdwe'), {
+    type: 'bar',
+    data: {
+      labels: ['Weekdays (Mon–Fri avg)', 'Weekend (Sat–Sun avg)'],
+      datasets: CAT_KEYS.map((k, i) => ({
+        label: CAT_LABELS[k],
+        data: [catAvgs(wd)[i], catAvgs(we)[i]],
+        backgroundColor: CAT_COLORS[k], borderWidth:0, borderRadius:4,
+      })),
+    },
+    options: {
+      ...BASE, indexAxis:'y',
+      scales: {
+        x: { stacked:true, title:{ display:true, text:'Avg minutes / day', color:'#64748b' } },
+        y: { stacked:true, grid:{ display:false } },
+      },
+      plugins: {
+        ...BASE.plugins,
+        legend: { display:true, position:'bottom', labels:{ color:'#94a3b8', boxWidth:12, padding:14, font:{ size:11 } } },
+        tooltip: { ...TIP, mode:'index', callbacks:{ label: ctx => `${ctx.dataset.label}: ${ctx.raw} min` } },
+      },
+    },
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// App Detail drill-down
+// ════════════════════════════════════════════════════════════════════════════
+const detailCharts = {};
+
+function showAppDetail(appName) {
+  // Destroy any existing detail charts
+  Object.values(detailCharts).forEach(c => { try { c.destroy(); } catch(e) {} });
+
+  const panel = document.getElementById('app-detail');
+  panel.style.display = '';
+  document.getElementById('detail-title').textContent = appName;
+
+  // ── Stats ──
+  const appRows    = _usage.filter(r => r.app_name === appName);
+  const allDates   = uniqSorted(_usage.map(r => r.date));
+  const last30     = allDates.slice(-30);
+  const activeDays = uniqSorted(appRows.map(r => r.date));
+  const totalMins  = appRows.reduce((s, r) => s + +r.mins, 0);
+  const avgDaily   = activeDays.length ? totalMins / activeDays.length : 0;
+
+  const dailyMins  = {};
+  appRows.forEach(r => { dailyMins[r.date] = (dailyMins[r.date] ?? 0) + +r.mins; });
+  const peakEntry  = Object.entries(dailyMins).sort((a,b) => b[1]-a[1])[0];
+
+  const appSess    = _sessions.filter(r => r.app_name === appName && +r.session_mins > 0.1);
+  const avgSess    = appSess.length ? appSess.reduce((s, r) => s + +r.session_mins, 0) / appSess.length : 0;
+
+  document.getElementById('detail-stats').innerHTML = [
+    { val: fmtMins(totalMins),     lbl: 'Total (all time)' },
+    { val: `${avgDaily.toFixed(0)}m`, lbl: 'Avg on active days' },
+    { val: peakEntry ? fmtMins(peakEntry[1]) : '—', lbl: `Peak (${peakEntry ? dateLabel(peakEntry[0]) : '—'})` },
+    { val: `${avgSess.toFixed(1)}m`, lbl: 'Avg session length' },
+  ].map(s => `<div class="stat-chip"><div class="sc-val">${s.val}</div><div class="sc-lbl">${s.lbl}</div></div>`).join('');
+
+  // ── Daily chart ──
+  const catColor = CAT_COLORS[getCat(appName)] ?? '#6366f1';
+  detailCharts.daily = new Chart(document.getElementById('detail-daily'), {
+    type: 'bar',
+    data: {
+      labels: last30.map(dateLabel),
+      datasets: [{ label:'Minutes', data: last30.map(d => +(dailyMins[d] ?? 0).toFixed(0)),
+        backgroundColor: catColor + 'aa', borderColor: catColor, borderWidth:1, borderRadius:3 }],
+    },
+    options: {
+      ...BASE,
+      scales: {
+        x: { grid:{ display:false }, ticks:{ maxRotation:45 } },
+        y: { title:{ display:true, text:'Minutes', color:'#64748b' } },
+      },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks:{ label: ctx => `${ctx.raw} min` } } },
+    },
+  });
+
+  // ── Hourly chart ──
+  const hourTotals = new Array(24).fill(0), hourCounts = new Array(24).fill(0);
+  appSess.forEach(r => {
+    const h = +r.hour;
+    if (h >= 0 && h < 24) { hourTotals[h] += +r.session_mins; hourCounts[h]++; }
+  });
+  const hourAvg = hourTotals.map((sum, h) => hourCounts[h] ? +(sum / hourCounts[h]).toFixed(1) : 0);
+  const HLBLS   = Array.from({length:24}, (_, h) =>
+    h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`
+  );
+
+  detailCharts.hourly = new Chart(document.getElementById('detail-hourly'), {
+    type: 'bar',
+    data: {
+      labels: HLBLS,
+      datasets: [{ label:'Avg session (min)', data: hourAvg,
+        backgroundColor: catColor + 'aa', borderColor: catColor, borderWidth:1, borderRadius:2 }],
+    },
+    options: {
+      ...BASE,
+      scales: {
+        x: { grid:{ display:false } },
+        y: { title:{ display:true, text:'Avg session (min)', color:'#64748b' } },
+      },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks:{ label: ctx => `${ctx.raw} min avg` } } },
+    },
+  });
+
+  panel.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Event delegation for app chips / links
+// ════════════════════════════════════════════════════════════════════════════
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-app]');
+  if (el && el.dataset.app) showAppDetail(el.dataset.app);
+});
+
+document.getElementById('detail-close').addEventListener('click', () => {
+  document.getElementById('app-detail').style.display = 'none';
+  Object.values(detailCharts).forEach(c => { try { c.destroy(); } catch(e) {} });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// Boot
+// ════════════════════════════════════════════════════════════════════════════
+async function init() {
+  let chrome;
+  try {
+    const [uTxt, sTxt, cTxt] = await Promise.all([
+      fetch('../data/mac_usage.csv').then(r => { if (!r.ok) throw 'mac_usage.csv not found'; return r.text(); }),
+      fetch('../data/mac_sessions.csv').then(r => { if (!r.ok) throw 'mac_sessions.csv not found'; return r.text(); }),
+      fetch('../data/chrome_history.csv').then(r => r.ok ? r.text() : '').catch(() => ''),
+    ]);
+    _usage    = parseCSV(uTxt);
+    _sessions = parseCSV(sTxt);
+    chrome    = cTxt ? parseCSV(cTxt) : [];
+  } catch (err) {
+    document.getElementById('main').innerHTML = `
+      <div class="card full">
+        <p class="err">Failed to load: ${err}</p>
+        <p class="dim" style="margin-top:8px">
+          Serve from project root:<br>
+          <code>cd /path/to/project &amp;&amp; python3 -m http.server 8000</code><br>
+          then open <code>http://localhost:8000/dashboard/</code>
+        </p>
+      </div>`;
+    return;
+  }
+
+  const dates = uniqSorted(_usage.map(r => r.date));
+  document.getElementById('hdr-range').textContent =
+    `${dates[0]} → ${dates[dates.length-1]}  ·  ${dates.length} days`;
+
+  buildStrip(_usage);
+  buildCatExplorer(_usage);
+  buildMix(_usage);
+  buildFocus(_sessions);
+  buildBounds(_usage);
+  buildRhythm(_sessions);
+  buildGrid14(_sessions);
+  buildFortnight(_usage, _sessions);
+  buildChrome(chrome);
+  buildTrends(_usage);
+  buildWdWe(_usage);
+}
+
+init();
+</script>
+</body>
+</html>
