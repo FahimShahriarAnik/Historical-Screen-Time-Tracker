@@ -193,6 +193,47 @@
     .ccp-meta { font-size: 11px; color: #64748b; margin-left: auto; font-variant-numeric: tabular-nums; }
     @media (max-width: 860px) { .chrome-cats { grid-template-columns: 1fr; } }
 
+    /* ── Weekly Patterns ── */
+    .wp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .wp-block {
+      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px; padding: 14px;
+    }
+    .wp-block-title {
+      font-size: 11px; font-weight: 600; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;
+    }
+    .wp-block-title .wp-sub {
+      font-weight: 500; color: #475569; text-transform: none;
+      letter-spacing: 0; margin-left: 8px;
+    }
+    .wp-tod {
+      display: grid; grid-template-columns: 50px repeat(4, 1fr); gap: 4px; font-size: 11px;
+    }
+    .wp-tod-head {
+      color: #64748b; font-size: 10px; text-transform: uppercase;
+      text-align: center; padding-bottom: 4px; line-height: 1.4;
+    }
+    .wp-tod-head span { color: #475569; font-weight: 400; }
+    .wp-tod-row-label { color: #94a3b8; display: flex; align-items: center; font-weight: 500; }
+    .wp-tod-cell {
+      border-radius: 4px; padding: 10px 6px; text-align: center;
+      font-variant-numeric: tabular-nums; color: #e2e8f0; font-weight: 500;
+    }
+    .wp-insights { display: flex; flex-direction: column; gap: 8px; }
+    .wp-insight {
+      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px;
+      padding: 10px 14px; font-size: 12.5px; color: #cbd5e1; line-height: 1.55;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .wp-insight-tag {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      color: #818cf8; background: rgba(99,102,241,0.12); padding: 4px 9px; border-radius: 999px;
+      white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+    }
+    .wp-insight strong { color: #f1f5f9; font-weight: 600; }
+    .wp-insight em { color: #94a3b8; font-style: normal; }
+    @media (max-width: 860px) { .wp-grid { grid-template-columns: 1fr; } }
+
     /* ── App Detail panel ── */
     #app-detail { display: none; }
     .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
@@ -263,10 +304,10 @@
     <div class="chart-wrap h240"><canvas id="c-focus"></canvas></div>
   </div>
 
-  <!-- 4. Workday bounds -->
+  <!-- 4. Longest single session per day -->
   <div class="card">
-    <h2>Workday Boundaries</h2>
-    <p class="sub">First → last app use each day (last 30 days)</p>
+    <h2>Longest Single Session</h2>
+    <p class="sub">Time span of the longest continuous app session each day (last 30 days)</p>
     <div class="chart-wrap h240"><canvas id="c-bounds"></canvas></div>
   </div>
 
@@ -315,15 +356,35 @@
   <!-- 6. Chrome breakdown -->
   <div class="card full">
     <h2>Chrome — Category Breakdown</h2>
-    <p class="sub">Last 30 days · grouped by purpose · <code>app.blackbox.ai</code> excluded as background noise</p>
+    <p class="sub">Last 30 days · grouped by purpose · <code>app.blackbox.ai</code> and the Tab Suspender extension excluded as background noise</p>
     <div class="chrome-callout">
-      <strong>How Chrome time is measured:</strong> wall-clock time a tab stays open, not active attention.
-      Each navigation is capped at 10 min before summing. Domains marked
-      <strong style="color:#f59e0b">⚠</strong> have avg &gt;8 min/navigation — likely idle tabs.
-      <strong>Visit count</strong> (grey) is usually the more reliable signal.
+      <strong>Ranked by visits</strong> — the more honest signal. Each visit = one page navigation
+      (clicking a link, typing a URL, reload). Leaving a tab open in the background does <em>not</em> bump it.
+      Time (in grey) is wall-clock tab-open time, capped at 10 min/visit; domains with
+      <strong style="color:#f59e0b">⚠</strong> avg &gt;8 min/visit and are usually idle background tabs.
     </div>
     <div class="chrome-stacked" id="chrome-stacked"></div>
     <div class="chrome-cats" id="chrome-cats"></div>
+  </div>
+
+  <!-- 6b. Weekly patterns -->
+  <div class="card full">
+    <h2>Weekly Patterns</h2>
+    <p class="sub">Day-of-week behavioral profile · how each weekday breaks down on average across all your data</p>
+    <div class="wp-grid">
+      <div class="wp-block">
+        <div class="wp-block-title">Avg daily time by category <span class="wp-sub">Mon → Sun</span></div>
+        <div class="chart-wrap h300"><canvas id="c-wp-cat"></canvas></div>
+      </div>
+      <div class="wp-block">
+        <div class="wp-block-title">When the day happens <span class="wp-sub">avg minutes per period</span></div>
+        <div id="wp-tod"></div>
+      </div>
+    </div>
+    <div class="wp-block" style="margin-top:16px">
+      <div class="wp-block-title">Patterns hiding in your data</div>
+      <div class="wp-insights" id="wp-insights"></div>
+    </div>
   </div>
 
   <!-- 7. App trends -->
@@ -434,7 +495,7 @@ const CHROME_CAT_COLORS = {
 const CHROME_CAT_KEYS = ['dev','research','entertainment','comms','shopping','search','other'];
 
 // Domains to exclude entirely (automated / background noise)
-const CHROME_EXCLUDE = new Set(['app.blackbox.ai']);
+const CHROME_EXCLUDE = new Set(['app.blackbox.ai', 'fiabciakcmgepblmdkmemdbbkilneeeh']);  // 2nd id = Tab Suspender extension
 
 // ─── Chrome time → Mac category overrides ──────────────────────────────────
 // Time spent on these domains is redistributed from "Browse" into the listed
@@ -465,6 +526,23 @@ const CHROME_TO_MAC_CAT = {
 };
 
 const PALETTE = ['#6366f1','#14b8a6','#22c55e','#f59e0b','#ec4899','#06b6d4','#a855f7','#f97316'];
+
+const DOW_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DOW_FULL  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+const TOD_BUCKETS = [
+  { key:'morning',   label:'Morning',    desc:'5am–12pm' },
+  { key:'afternoon', label:'Afternoon',  desc:'12pm–6pm' },
+  { key:'evening',   label:'Evening',    desc:'6pm–10pm' },
+  { key:'late',      label:'Late Night', desc:'10pm–5am' },
+];
+
+function bucketHour(h) {
+  if (h >= 5  && h < 12) return 'morning';
+  if (h >= 12 && h < 18) return 'afternoon';
+  if (h >= 18 && h < 22) return 'evening';
+  return 'late';
+}
 
 // Module-scope data (set in init, used by detail panel)
 let _usage = [], _sessions = [];
@@ -577,6 +655,29 @@ function threshold(m) { return m < 120 ? 'green' : m <= 240 ? 'yellow' : 'red'; 
 
 function fmtMins(m) { return m >= 60 ? `${(m/60).toFixed(1)}h` : `${Math.round(m)}m`; }
 
+function fmtHM(m) {
+  if (!isFinite(m) || m <= 0) return '0m';
+  const total = Math.round(m);
+  const h  = Math.floor(total / 60);
+  const mm = total - h * 60;
+  if (h === 0)  return `${mm}m`;
+  if (mm === 0) return `${h}h`;
+  return `${h}h ${mm}m`;
+}
+
+function dateLabelDow(s) {
+  const d = new Date(s + 'T12:00:00');
+  return [
+    d.toLocaleDateString('en-US', { month:'short', day:'numeric' }),
+    d.toLocaleDateString('en-US', { weekday:'short' }),
+  ];
+}
+
+function dateLabelLong(s) {
+  return new Date(s + 'T12:00:00')
+    .toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // Chart.js baseline
 // ════════════════════════════════════════════════════════════════════════════
@@ -604,8 +705,8 @@ function buildStrip(usage, chromeShares) {
     const cls      = threshold(total);
     return `<div class="day-tile">
       <div class="dt-label">${d.toLocaleDateString('en-US',{weekday:'short'})}<br>${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
-      <div class="dt-total ${cls}">${Math.round(total)}m</div>
-      <div class="dt-deep">${deepPct}% deep work</div>
+      <div class="dt-total ${cls}">${fmtHM(total)}</div>
+      <div class="dt-deep">${deepPct}% deep · ${fmtHM(deepMins)}</div>
       <div class="dt-app"><span class="app-chip used" data-app="${top}" style="background:none;padding:0">${top}</span></div>
     </div>`;
   }).join('');
@@ -676,7 +777,7 @@ function buildMix(usage, chromeShares) {
   new Chart(document.getElementById('c-mix'), {
     type: 'bar',
     data: {
-      labels: dates.map(dateLabel),
+      labels: dates.map(dateLabelDow),
       datasets: CAT_KEYS.map(k => ({
         label: CAT_LABELS[k],
         data: dates.map(date => +totals[date][k].toFixed(1)),
@@ -687,13 +788,28 @@ function buildMix(usage, chromeShares) {
     options: {
       ...BASE,
       scales: {
-        x: { stacked:true, grid:{ display:false }, ticks:{ maxRotation:45 } },
-        y: { stacked:true, title:{ display:true, text:'Minutes', color:'#64748b' } },
+        x: { stacked:true, grid:{ display:false }, ticks:{ maxRotation:0, autoSkip:false, font:{ size:10 } } },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: {
+            stepSize: 15,
+            callback: v => v % 60 === 0 ? `${v/60}h` : '',
+          },
+          grid: {
+            color: ctx => ctx.tick.value % 60 === 0 ? '#1e2235' : 'rgba(30,34,53,0.45)',
+          },
+          title: { display:true, text:'Hours', color:'#64748b' },
+        },
       },
       plugins: {
         ...BASE.plugins,
         tooltip: { ...TIP, mode:'index',
-          callbacks: { label: ctx => `${ctx.dataset.label}: ${Math.round(ctx.raw)} min` } },
+          callbacks: {
+            title: items => dateLabelLong(dates[items[0].dataIndex]),
+            label: ctx => `${ctx.dataset.label}: ${fmtHM(ctx.raw)}`,
+          },
+        },
       },
     },
   });
@@ -714,7 +830,7 @@ function buildFocus(sessions) {
   new Chart(document.getElementById('c-focus'), {
     type: 'bar',
     data: {
-      labels: dates.map(dateLabel),
+      labels: dates.map(dateLabelDow),
       datasets: [
         {
           type:'line', label:'Avg session (min)', data:avgs,
@@ -730,57 +846,66 @@ function buildFocus(sessions) {
     options: {
       ...BASE,
       scales: {
-        x:  { grid:{ display:false }, ticks:{ maxRotation:45 } },
+        x:  { grid:{ display:false }, ticks:{ maxRotation:0, autoSkip:false, font:{ size:10 } } },
         yA: { position:'left',  title:{ display:true, text:'Avg session (min)', color:'#6366f1' } },
         yC: { position:'right', title:{ display:true, text:'Sessions/day',      color:'#64748b' }, grid:{ drawOnChartArea:false } },
       },
       plugins: {
         ...BASE.plugins,
-        tooltip: { ...TIP, mode:'index', callbacks:{ label: ctx => `${ctx.dataset.label}: ${ctx.raw}` } },
+        tooltip: { ...TIP, mode:'index',
+          callbacks: {
+            title: items => dateLabelLong(dates[items[0].dataIndex]),
+            label: ctx => `${ctx.dataset.label}: ${ctx.raw}`,
+          },
+        },
       },
     },
   });
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// Section 4 — Workday bounds (floating bar)
+// Section 4 — Longest single session per day (floating bar)
 // ════════════════════════════════════════════════════════════════════════════
-function buildBounds(usage) {
-  const dates = uniqSorted(usage.map(r => r.date)).slice(-30);
+function buildBounds(sessions) {
+  const dates = uniqSorted(sessions.map(r => r.date)).slice(-30);
 
   const data = dates.map(date => {
-    const rows   = usage.filter(r => r.date === date);
-    const firsts = rows.map(r => timeToHour(r.first_use)).filter(h => h >= 0);
-    const lasts  = rows.map(r => timeToHour(r.last_use)).filter(h => h >= 0);
-    if (!firsts.length) return null;
-    const first = Math.min(...firsts);
-    let last    = Math.max(...lasts);
-    if (last < first) last += 24;
-    return [first, Math.min(last, 27)];
+    const rows = sessions.filter(r => r.date === date && +r.session_mins > 0);
+    if (!rows.length) return null;
+    const longest = rows.reduce((m, r) => +r.session_mins > +m.session_mins ? r : m, rows[0]);
+    const start = +longest.hour;
+    const end   = start + +longest.session_mins / 60;
+    return [start, Math.min(end, 27)];
   });
 
   new Chart(document.getElementById('c-bounds'), {
     type: 'bar',
     data: {
-      labels: dates.map(dateLabel),
-      datasets: [{ label:'Active span', data,
+      labels: dates.map(dateLabelDow),
+      datasets: [{ label:'Longest session', data,
         backgroundColor:'rgba(99,102,241,0.45)', borderColor:'#6366f1',
         borderWidth:1, borderRadius:3, borderSkipped:false }],
     },
     options: {
       ...BASE,
       scales: {
-        x: { grid:{ display:false }, ticks:{ maxRotation:45 } },
+        x: { grid:{ display:false }, ticks:{ maxRotation:0, autoSkip:false, font:{ size:10 } } },
         y: { min:0, max:27,
              ticks:{ stepSize:3, callback: v => fmtHour(v) },
              title:{ display:true, text:'Time of day', color:'#64748b' } },
       },
       plugins: {
         ...BASE.plugins,
-        tooltip: { ...TIP, callbacks:{ label: ctx => {
-          if (!ctx.raw) return 'No data';
-          return `${fmtHour(ctx.raw[0])} → ${fmtHour(ctx.raw[1])}  (${(ctx.raw[1]-ctx.raw[0]).toFixed(1)}h span)`;
-        }}},
+        tooltip: { ...TIP,
+          callbacks: {
+            title: items => dateLabelLong(dates[items[0].dataIndex]),
+            label: ctx => {
+              if (!ctx.raw) return 'No data';
+              const dur = (ctx.raw[1] - ctx.raw[0]) * 60;
+              return `${fmtHour(ctx.raw[0])} → ${fmtHour(ctx.raw[1])}  (${fmtHM(dur)})`;
+            },
+          },
+        },
       },
     },
   });
@@ -837,7 +962,7 @@ function buildRhythm(sessions, chromeShares) {
   });
 
   const HLBLS = Array.from({length:24}, (_, h) =>
-    h === 0 ? '12am' : h < 12 ? `${h}a` : h === 12 ? '12pm' : `${h-12}p`
+    h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`
   );
 
   document.getElementById('rhythm-legend').innerHTML = CAT_KEYS.map(k =>
@@ -1092,17 +1217,19 @@ function buildChrome(chrome) {
 
   const totalMins = Object.values(buckets).reduce((s, b) => s + b.mins, 0);
 
-  // ── Stacked bar (headline) ──
+  const totalVisits = Object.values(buckets).reduce((s, b) => s + b.visits, 0);
+
+  // ── Stacked bar (headline) — sized by VISITS, not minutes ──
   const segs = CHROME_CAT_KEYS
-    .filter(k => buckets[k].mins > 0)
-    .sort((a, b) => buckets[b].mins - buckets[a].mins);
+    .filter(k => buckets[k].visits > 0)
+    .sort((a, b) => buckets[b].visits - buckets[a].visits);
 
   stackedEl.innerHTML = `
     <div class="chrome-stacked-bar">
       ${segs.map(k => {
-        const pct = (buckets[k].mins / totalMins * 100);
+        const pct = (buckets[k].visits / totalVisits * 100);
         const showLabel = pct >= 6;
-        return `<div class="chrome-stacked-seg" title="${CHROME_CAT_LABELS[k]}: ${fmtMins(buckets[k].mins)} (${pct.toFixed(0)}%)"
+        return `<div class="chrome-stacked-seg" title="${CHROME_CAT_LABELS[k]}: ${buckets[k].visits} visits (${pct.toFixed(0)}%) · ${fmtMins(buckets[k].mins)}"
                   style="width:${pct}%; background:${CHROME_CAT_COLORS[k]}">
                   ${showLabel ? `${CHROME_CAT_LABELS[k]} ${pct.toFixed(0)}%` : ''}
                 </div>`;
@@ -1110,38 +1237,38 @@ function buildChrome(chrome) {
     </div>
     <div class="chrome-stacked-legend">
       ${segs.map(k => {
-        const pct = (buckets[k].mins / totalMins * 100).toFixed(0);
+        const pct = (buckets[k].visits / totalVisits * 100).toFixed(0);
         return `<span class="legend-item">
           <span class="legend-dot" style="background:${CHROME_CAT_COLORS[k]}"></span>
           ${CHROME_CAT_LABELS[k]}
-          <span class="css-pct">${fmtMins(buckets[k].mins)} · ${pct}%</span>
+          <span class="css-pct">${buckets[k].visits} visits · ${pct}% <span style="color:#374151">· ${fmtMins(buckets[k].mins)}</span></span>
         </span>`;
       }).join('')}
     </div>
   `;
 
-  // ── Per-category panels (top 5 domains each) ──
+  // ── Per-category panels (top 5 domains each, ranked by visits) ──
   catsEl.innerHTML = segs.map(k => {
     const b = buckets[k];
-    const top = b.domains.sort((a, c) => c.mins - a.mins).slice(0, 5);
-    const maxM = top[0]?.mins ?? 1;
+    const top = b.domains.sort((a, c) => c.visits - a.visits).slice(0, 5);
+    const maxV = top[0]?.visits ?? 1;
     return `
       <div class="chrome-cat-panel">
         <div class="ccp-head">
           <span class="legend-dot" style="background:${CHROME_CAT_COLORS[k]}"></span>
           <span class="ccp-name">${CHROME_CAT_LABELS[k]}</span>
-          <span class="ccp-meta">${fmtMins(b.mins)} · ${b.visits} visits</span>
+          <span class="ccp-meta">${b.visits} visits <span style="color:#374151">· ${fmtMins(b.mins)}</span></span>
         </div>
         <div class="chrome-rows">
           ${top.map(d => {
-            const pct = (d.mins / maxM * 100).toFixed(1);
+            const pct = (d.visits / maxV * 100).toFixed(1);
             const avgPerVisit = d.visits > 0 ? d.mins / d.visits : 0;
             const idle = avgPerVisit >= 8;
             const idleWarn = idle ? `<span class="idle-warn" title="avg ${avgPerVisit.toFixed(1)} min/navigation — likely idle tab">⚠</span>` : '';
             return `<div class="cr">
               <div class="cr-domain" title="${d.domain}">${d.domain}${idleWarn}</div>
               <div class="cr-track"><div class="cr-bar" style="width:${pct}%; background:${CHROME_CAT_COLORS[k]}"></div></div>
-              <div class="cr-meta">${fmtMins(d.mins)}<br><span style="color:#374151">${d.visits} visits</span></div>
+              <div class="cr-meta">${d.visits} visits<br><span style="color:#374151">${fmtMins(d.mins)}</span></div>
             </div>`;
           }).join('')}
         </div>
@@ -1237,6 +1364,282 @@ function buildWdWe(usage, chromeShares) {
       },
     },
   });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Section 6b — Weekly patterns (day-of-week behavioral profile)
+// ════════════════════════════════════════════════════════════════════════════
+function buildWeeklyPatterns(usage, sessions, chrome, chromeShares) {
+  const usageDates = uniqSorted(usage.map(r => r.date));
+  if (!usageDates.length) return;
+
+  // Distinct dates per weekday (denominator for averages)
+  const dowCount = new Array(7).fill(0);
+  usageDates.forEach(d => { dowCount[new Date(d+'T12:00:00').getDay()]++; });
+
+  // ── Category sums ──
+  const catSums = Array.from({length:7}, () => Object.fromEntries(CAT_KEYS.map(k => [k, 0])));
+  usage.forEach(r => {
+    const dow = new Date(r.date+'T12:00:00').getDay();
+    const bd = rowCatMins(r, chromeShares);
+    for (const [k, m] of Object.entries(bd)) {
+      if (catSums[dow][k] !== undefined) catSums[dow][k] += m;
+    }
+  });
+  const catAvg = catSums.map((s, dow) => {
+    const out = {};
+    CAT_KEYS.forEach(k => out[k] = dowCount[dow] ? s[k] / dowCount[dow] : 0);
+    return out;
+  });
+  const totalAvg = catAvg.map(o => CAT_KEYS.reduce((s,k)=>s+o[k], 0));
+
+  // ── Time-of-day sums (from sessions) ──
+  const todSums = Array.from({length:7}, () => Object.fromEntries(TOD_BUCKETS.map(b => [b.key, 0])));
+  sessions.forEach(r => {
+    const dow = new Date(r.date+'T12:00:00').getDay();
+    const h = +r.hour;
+    if (h < 0 || h >= 24) return;
+    todSums[dow][bucketHour(h)] += +r.session_mins;
+  });
+  const todAvg = todSums.map((s, dow) => {
+    const out = {};
+    TOD_BUCKETS.forEach(b => out[b.key] = dowCount[dow] ? s[b.key] / dowCount[dow] : 0);
+    return out;
+  });
+
+  // ── First/last use per weekday ──
+  const firstByDate = {}, lastByDate = {};
+  usage.forEach(r => {
+    const f = timeToHour(r.first_use), l = timeToHour(r.last_use);
+    if (firstByDate[r.date] === undefined || f < firstByDate[r.date]) firstByDate[r.date] = f;
+    if (lastByDate[r.date]  === undefined || l > lastByDate[r.date])  lastByDate[r.date]  = l;
+  });
+  const dowFirst = Array.from({length:7}, () => []);
+  const dowLast  = Array.from({length:7}, () => []);
+  Object.keys(firstByDate).forEach(d => {
+    const dow = new Date(d+'T12:00:00').getDay();
+    dowFirst[dow].push(firstByDate[d]);
+    if (lastByDate[d] !== undefined) dowLast[dow].push(lastByDate[d]);
+  });
+  const avg = arr => arr.length ? arr.reduce((s,v)=>s+v,0) / arr.length : null;
+  const firstAvg = dowFirst.map(avg);
+  const lastAvg  = dowLast.map(avg);
+
+  // ── Longest session per weekday (avg of daily-max session lengths) ──
+  const dailyMax = {};
+  sessions.forEach(r => {
+    const m = +r.session_mins;
+    if (!isFinite(m)) return;
+    if (!dailyMax[r.date] || m > dailyMax[r.date]) dailyMax[r.date] = m;
+  });
+  const dowMax = Array.from({length:7}, () => []);
+  Object.entries(dailyMax).forEach(([d, m]) => {
+    dowMax[new Date(d+'T12:00:00').getDay()].push(m);
+  });
+  const longestAvg = dowMax.map(avg);
+
+  // ── Sessions/day per weekday (>1 min sessions) ──
+  const sessCount = new Array(7).fill(0);
+  sessions.forEach(r => {
+    if (+r.session_mins <= 1) return;
+    sessCount[new Date(r.date+'T12:00:00').getDay()]++;
+  });
+  const sessPerDay = sessCount.map((c, dow) => dowCount[dow] ? c / dowCount[dow] : 0);
+
+  // ── Idle-Chrome proxy per weekday: domains with avg ≥ 8 min/visit ──
+  const idleByDate = {};
+  (chrome || []).forEach(r => {
+    if (!r.domain || CHROME_EXCLUDE.has(r.domain)) return;
+    const v = +r.visits, m = +r.total_mins;
+    if (v <= 0 || m <= 0) return;
+    if (m / v >= 8) idleByDate[r.date] = (idleByDate[r.date] ?? 0) + m;
+  });
+  const dowIdle = new Array(7).fill(0);
+  Object.entries(idleByDate).forEach(([d, m]) => {
+    dowIdle[new Date(d+'T12:00:00').getDay()] += m;
+  });
+  const idleAvg = dowIdle.map((s, dow) => dowCount[dow] ? s / dowCount[dow] : 0);
+
+  // ── Render: stacked bar (Mon → Sun) ──
+  const order  = [1,2,3,4,5,6,0];
+  const labels = order.map(i => DOW_NAMES[i]);
+
+  new Chart(document.getElementById('c-wp-cat'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: CAT_KEYS.map(k => ({
+        label: CAT_LABELS[k],
+        data:  order.map(dow => +catAvg[dow][k].toFixed(1)),
+        backgroundColor: CAT_COLORS[k], borderWidth: 0,
+      })),
+    },
+    options: {
+      ...BASE,
+      scales: {
+        x: { stacked:true, grid:{ display:false } },
+        y: {
+          stacked: true,
+          ticks: { stepSize:15, callback: v => v % 60 === 0 ? `${v/60}h` : '' },
+          grid:  { color: ctx => ctx.tick.value % 60 === 0 ? '#1e2235' : 'rgba(30,34,53,0.45)' },
+          title: { display:true, text:'Avg hours / day', color:'#64748b' },
+        },
+      },
+      plugins: {
+        ...BASE.plugins,
+        legend:  { display:true, position:'bottom',
+                   labels:{ color:'#94a3b8', boxWidth:12, padding:12, font:{ size:11 } } },
+        tooltip: { ...TIP, mode:'index',
+          callbacks: {
+            title: items => `${DOW_FULL[order[items[0].dataIndex]]} (${dowCount[order[items[0].dataIndex]]} sample${dowCount[order[items[0].dataIndex]]>1?'s':''})`,
+            label: ctx => `${ctx.dataset.label}: ${fmtHM(ctx.raw)}`,
+          },
+        },
+      },
+    },
+  });
+
+  // ── Render: time-of-day grid ──
+  const todMaxV = Math.max(0.1, ...order.flatMap(dow => TOD_BUCKETS.map(b => todAvg[dow][b.key])));
+  const todColor = makeHeatColor(todMaxV);
+
+  let todHTML = `<div class="wp-tod">`;
+  todHTML += `<div></div>`;
+  TOD_BUCKETS.forEach(b => {
+    todHTML += `<div class="wp-tod-head">${b.label}<br><span>${b.desc}</span></div>`;
+  });
+  order.forEach(dow => {
+    todHTML += `<div class="wp-tod-row-label">${DOW_NAMES[dow]}</div>`;
+    TOD_BUCKETS.forEach(b => {
+      const v = todAvg[dow][b.key];
+      todHTML += `<div class="wp-tod-cell" style="background:${todColor(v)}"
+                    title="${DOW_FULL[dow]} ${b.label} (${b.desc}): avg ${fmtHM(v)}">${v >= 1 ? fmtHM(v) : '—'}</div>`;
+    });
+  });
+  todHTML += `</div>`;
+  document.getElementById('wp-tod').innerHTML = todHTML;
+
+  // ── Insights ──
+  function argMax(arr, valid) {
+    let best = -1;
+    for (let i = 0; i < arr.length; i++) {
+      if (valid && !valid(arr[i], i)) continue;
+      if (arr[i] === null || arr[i] === undefined) continue;
+      if (best === -1 || arr[i] > arr[best]) best = i;
+    }
+    return best;
+  }
+  const hasData = (_, i) => dowCount[i] > 0;
+
+  const ins = [];
+
+  const mostActive = argMax(totalAvg, hasData);
+  if (mostActive >= 0) {
+    ins.push({ tag:'Most Active',
+      text:`<strong>${DOW_FULL[mostActive]}s</strong> are your busiest day — avg <strong>${fmtHM(totalAvg[mostActive])}</strong> on screen <em>(${dowCount[mostActive]} sample${dowCount[mostActive]>1?'s':''}).</em>` });
+  }
+
+  const deepShare = catAvg.map((c, i) => totalAvg[i] > 0 ? c.deep_work / totalAvg[i] : 0);
+  const bestDeep = argMax(deepShare, hasData);
+  if (bestDeep >= 0 && deepShare[bestDeep] > 0) {
+    ins.push({ tag:'Deep Work',
+      text:`Highest deep-work share lands on <strong>${DOW_FULL[bestDeep]}s</strong> — <strong>${(deepShare[bestDeep]*100).toFixed(0)}%</strong> of screen time (avg ${fmtHM(catAvg[bestDeep].deep_work)}).` });
+  }
+
+  const entShare = catAvg.map((c, i) => totalAvg[i] > 0 ? c.entertainment / totalAvg[i] : 0);
+  const bestEnt = argMax(entShare, hasData);
+  if (bestEnt >= 0 && entShare[bestEnt] > 0.03) {
+    ins.push({ tag:'Entertainment',
+      text:`<strong>${DOW_FULL[bestEnt]}s</strong> lean most into entertainment — <strong>${(entShare[bestEnt]*100).toFixed(0)}%</strong> of screen time (avg ${fmtHM(catAvg[bestEnt].entertainment)}).` });
+  }
+
+  const brwShare = catAvg.map((c, i) => totalAvg[i] > 0 ? c.browse / totalAvg[i] : 0);
+  const bestBrw = argMax(brwShare, hasData);
+  if (bestBrw >= 0 && brwShare[bestBrw] > 0) {
+    ins.push({ tag:'Browse',
+      text:`Most browsing happens on <strong>${DOW_FULL[bestBrw]}s</strong> — <strong>${(brwShare[bestBrw]*100).toFixed(0)}%</strong> of screen time (avg ${fmtHM(catAvg[bestBrw].browse)}).` });
+  }
+
+  const latestStart = argMax(firstAvg, (v,i) => firstAvg[i] !== null);
+  if (latestStart >= 0) {
+    ins.push({ tag:'Slow Start',
+      text:`Slowest mornings are on <strong>${DOW_FULL[latestStart]}s</strong> — avg first activity at <strong>${fmtHour(firstAvg[latestStart])}</strong>.` });
+  }
+
+  const latestEnd = argMax(lastAvg, (v,i) => lastAvg[i] !== null);
+  if (latestEnd >= 0) {
+    ins.push({ tag:'Late Night',
+      text:`Latest nights are on <strong>${DOW_FULL[latestEnd]}s</strong> — avg last activity at <strong>${fmtHour(lastAvg[latestEnd])}</strong>.` });
+  }
+
+  const lateShare = todAvg.map(t => {
+    const tot = TOD_BUCKETS.reduce((s,b) => s + t[b.key], 0);
+    return tot > 0 ? t.late / tot : 0;
+  });
+  const bestLate = argMax(lateShare, hasData);
+  if (bestLate >= 0 && lateShare[bestLate] > 0.05) {
+    ins.push({ tag:'Night Owl',
+      text:`Most late-night usage (10pm–5am) happens on <strong>${DOW_FULL[bestLate]}s</strong> — <strong>${(lateShare[bestLate]*100).toFixed(0)}%</strong> of that day's activity.` });
+  }
+
+  const bestLongest = argMax(longestAvg, (v,i) => longestAvg[i] !== null);
+  if (bestLongest >= 0) {
+    ins.push({ tag:'Deepest Focus',
+      text:`<strong>${DOW_FULL[bestLongest]}s</strong> have the longest single sessions — avg <strong>${fmtHM(longestAvg[bestLongest])}</strong> uninterrupted.` });
+  }
+
+  const mostFrag = argMax(sessPerDay, hasData);
+  if (mostFrag >= 0 && sessPerDay[mostFrag] > 0) {
+    ins.push({ tag:'Fragmented',
+      text:`Most fragmented attention on <strong>${DOW_FULL[mostFrag]}s</strong> — avg <strong>${sessPerDay[mostFrag].toFixed(0)} sessions/day</strong>.` });
+  }
+
+  const mostIdle = argMax(idleAvg, hasData);
+  if (mostIdle >= 0 && idleAvg[mostIdle] > 5) {
+    ins.push({ tag:'Idle Tabs',
+      text:`<strong>${DOW_FULL[mostIdle]}s</strong> show the most likely idle Chrome time (background tabs) — avg <strong>${fmtHM(idleAvg[mostIdle])}</strong>.` });
+  }
+
+  // Weekday vs weekend
+  const wdIdx = [1,2,3,4,5], weIdx = [0,6];
+  const groupAvg = (vals, idx) => {
+    const valid = idx.filter(i => dowCount[i] > 0);
+    return valid.length ? valid.reduce((s,i) => s + vals[i], 0) / valid.length : 0;
+  };
+  const wdTotal = groupAvg(totalAvg, wdIdx), weTotal = groupAvg(totalAvg, weIdx);
+  if (wdTotal > 0 && weTotal > 0) {
+    const diff = (weTotal - wdTotal) / wdTotal * 100;
+    const verb = diff >= 0 ? 'more' : 'less';
+    ins.push({ tag:'Weekend vs Weekday',
+      text:`Weekends avg <strong>${fmtHM(weTotal)}</strong> vs <strong>${fmtHM(wdTotal)}</strong> on weekdays — <strong>${Math.abs(diff).toFixed(0)}% ${verb}</strong> screen time.` });
+  }
+
+  const wdDeep = groupAvg(catAvg.map(c => c.deep_work), wdIdx);
+  const weDeep = groupAvg(catAvg.map(c => c.deep_work), weIdx);
+  if (wdDeep > 5 && Math.abs(weDeep - wdDeep) > 5) {
+    const ratio = weDeep / wdDeep;
+    const verb = ratio < 1 ? `${((1-ratio)*100).toFixed(0)}% less` : `${((ratio-1)*100).toFixed(0)}% more`;
+    ins.push({ tag:'Weekend Deep Work',
+      text:`Weekend deep work is <strong>${verb}</strong> than weekday — avg ${fmtHM(weDeep)} vs ${fmtHM(wdDeep)}.` });
+  }
+
+  const wdEnt = groupAvg(catAvg.map(c => c.entertainment), wdIdx);
+  const weEnt = groupAvg(catAvg.map(c => c.entertainment), weIdx);
+  if ((wdEnt > 5 || weEnt > 5) && Math.abs(weEnt - wdEnt) > 5) {
+    const ratio = wdEnt > 0 ? weEnt / wdEnt : 99;
+    const verb = ratio >= 1 ? `${((ratio-1)*100).toFixed(0)}% more` : `${((1-ratio)*100).toFixed(0)}% less`;
+    ins.push({ tag:'Weekend Leisure',
+      text:`Weekend entertainment is <strong>${verb}</strong> than weekday — avg ${fmtHM(weEnt)} vs ${fmtHM(wdEnt)}.` });
+  }
+
+  const minSamples = Math.min(...wdIdx.concat(weIdx).map(i => dowCount[i]));
+  const sampleNote = minSamples < 2
+    ? `<div class="wp-insight"><span class="wp-insight-tag" style="background:rgba(245,158,11,0.12);color:#f59e0b">Heads-up</span><div>Some weekdays only have <strong>${minSamples}</strong> sample(s). Patterns sharpen with more weeks of data.</div></div>`
+    : '';
+
+  document.getElementById('wp-insights').innerHTML = sampleNote + (ins.length
+    ? ins.map(i => `<div class="wp-insight"><span class="wp-insight-tag">${i.tag}</span><div>${i.text}</div></div>`).join('')
+    : `<div class="wp-insight"><span class="wp-insight-tag">No data</span><div>Not enough activity yet to surface patterns.</div></div>`);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1376,11 +1779,12 @@ async function init() {
   buildCatExplorer(_usage);
   buildMix(_usage, chromeShares);
   buildFocus(_sessions);
-  buildBounds(_usage);
+  buildBounds(_sessions);
   buildRhythm(_sessions, chromeShares);
   buildGrid14(_sessions);
   buildFortnight(_usage, _sessions);
   buildChrome(chrome);
+  buildWeeklyPatterns(_usage, _sessions, chrome, chromeShares);
   buildTrends(_usage);
   buildWdWe(_usage, chromeShares);
 }
