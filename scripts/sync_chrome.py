@@ -3,11 +3,12 @@
 Sync Chrome browsing history into data/chrome_history.csv.
 
 Reads from Chrome's SQLite history database and writes one row
-per domain per day.
+per domain per day. Only finished days (never today) are appended.
+Chrome keeps ~90 days.
 
 Usage:
-    python3 scripts/sync_chrome.py             # incremental sync
-    python3 scripts/sync_chrome.py --full      # overwrite with full history
+    python3 scripts/sync_chrome.py             # append new finished days
+    python3 scripts/sync_chrome.py --full      # DESTRUCTIVE: rebuild CSV from the ~90 days Chrome still has
 
 Notes:
     - Close Chrome before running for most accurate data (WAL journal)
@@ -19,7 +20,7 @@ import csv
 import shutil
 import sqlite3
 import sys
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -178,6 +179,10 @@ def main():
 
     rows = fetch_history(TMP_DB, since_date=since)
     cleanup_tmp()
+
+    # Only finished days — a day synced mid-day would stay partial forever
+    today = date.today().isoformat()
+    rows = [r for r in rows if r[0] < today]
 
     if not rows:
         print(f"{DIM}No new data to sync.{RESET}")

@@ -1,6 +1,6 @@
 # Decisions & Insights
 
-Cross-check date: **2026-05-12** — pull fresh data and see if anything moved.
+Last checked: **2026-11-03** (result below). Re-check whenever you want, no fixed date.
 
 ---
 
@@ -34,9 +34,15 @@ The urge to message someone mid-work is the real problem — usually triggered b
   - **8am–12pm** — family (Bangladesh)
   - **8pm onward** — everyone else
 
-**What to check on 2026-05-12:**
-- WhatsApp session count (was ~500/month — should drop)
-- VS Code avg session length (was 1.8 min — should climb above 5 min)
+**Check (planned for 2026-05-12, done 2026-11-03 on Oct 4 – Nov 2 Mac data):**
+
+| | April (before) | October (after) | Target | |
+|---|---|---|---|---|
+| WhatsApp sessions / 30 days | ~570 | ~270 | drop | ✓ halved |
+| VS Code avg session | 1.4 min | 2.5 min | > 5 min | ✗ not yet |
+| VS Code sessions ≥ 25 min | 0 | 11 | — | improving |
+
+WhatsApp sessions roughly halved. VS Code focus is better but still fragmented (84% of sessions are under 5 min).
 
 ---
 

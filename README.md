@@ -1,144 +1,52 @@
 # Screen Time Tracker
 
-Two data sources: iPhone (manual) and Mac (automatic).
+Personal, local-only tracker for three sources: **iPhone** (Screen Time screenshots), **Mac apps** (macOS `knowledgeC.db`) and **Chrome** (browser history). One dashboard with Mac | iPhone tabs.
 
-## Folder Structure
-```
-screentime/
-├── data/
-│   ├── screentime.csv        ← iPhone data (manual weekly entry)
-│   ├── mac_usage.csv         ← Mac data, one row per app per day
-│   ├── mac_sessions.csv      ← Mac session-level data (per-session granularity)
-│   └── chrome_history.csv    ← Chrome domain data, one row per domain per day
-├── dashboard/
-│   └── index.html            ← Mac dashboard (serve via local server)
-├── scripts/
-│   ├── log.py                ← run every Sunday for iPhone data
-│   ├── sync_mac.py           ← sync Mac usage from knowledgeC.db
-│   └── sync_chrome.py        ← sync Chrome history
-└── README.md
-```
+## Routine — every 3 weeks
 
-## Setup
-1. Grant Full Disk Access (one-time) — needed for Mac auto-sync:
-   - System Settings > Privacy & Security > Full Disk Access
-   - Enable Terminal and/or Visual Studio Code
-2. Sync data and open dashboard:
+1. **iPhone:** Settings → Screen Time → See All App & Website Activity → screenshot every **Day** and every full **Week** → AirDrop to the Mac → move them into `mobile time tracker/`.
+2. **Mac:** quit Chrome, then in Terminal:
    ```bash
-   python3 scripts/sync_mac.py
-   python3 scripts/sync_chrome.py   # close Chrome first for best results
-   cd /path/to/project && python3 -m http.server 8000
-   # open http://localhost:8000/dashboard/
+   cd ~/"Historical Screen Time Tracker" && python3 scripts/sync_all.py
    ```
+   Check the iPhone table, type `y`. Mac + Chrome sync on their own.
+3. **Dashboard** opens at `http://localhost:8000/dashboard/`. Ctrl+C in Terminal when done.
 
-## Mac Data (automatic)
+**Why every 3 weeks:** the sources delete old data. iOS shows only the current week plus the 3 before it, macOS keeps about 30 days and Chrome about 90. Every sync only *appends* finished days (never today) and never rewrites rows already saved.
 
-```bash
-python3 scripts/sync_mac.py         # incremental sync (new days only)
-python3 scripts/sync_mac.py --full  # overwrite with full history
-```
+## One-time setup
+- **Full Disk Access** for Terminal: System Settings → Privacy & Security → Full Disk Access (needed to read `knowledgeC.db`).
+- **Python packages:** `pip3 install numpy pillow`, used by the screenshot import.
+- **Xcode Command Line Tools** (`xcode-select --install`): the import compiles a small Apple Vision OCR helper once.
 
-Writes two files:
-- `data/mac_usage.csv` — one row per app per day
-- `data/mac_sessions.csv` — individual sessions (drives daily-rhythm chart, 14-day activity grid, focus-quality stats)
-
-Reads from macOS `knowledgeC.db`. One row per app per day:
-
-| Column | Description | Example |
-|---|---|---|
-| `date` | The day | `2026-04-06` |
-| `app_name` | Friendly app name | `Chrome` |
-| `bundle_id` | macOS bundle identifier | `com.google.Chrome` |
-| `mins` | Minutes of usage | `106.1` |
-| `sessions` | Number of focus sessions | `19` |
-| `first_use` | First use time that day | `00:50:54` |
-| `last_use` | Last use time that day | `03:45:15` |
-
-## iPhone Data (manual, every Sunday, ~10 min)
-
-```bash
-python3 scripts/log.py
-```
-
-The script walks you through each day (Mon-Sun). You enter everything from the iPhone Screen Time UI.
-
-After logging, commit:
-```bash
-git add data/
-git commit -m "week of 2026-04-13"
-git push
-```
-
-### iPhone Column Reference
-
-#### Meta
-| Column | Description | Example |
-|---|---|---|
-| `date` | The specific day | `2026-04-06` |
-| `week_start` | Monday of that week | `2026-04-06` |
-
-#### Screen Time
-| Column | Description | Example |
-|---|---|---|
-| `total_mins` | Total screen time in minutes | `210` |
-
-#### Hourly Pickups
-`pick_12am` through `pick_11pm` — number of times you picked up phone in that hour.
-Read from the bar chart in Screen Time > Pickups. Eyeball each bar.
-
-#### Top 5 Apps
-| Column | Description |
+## Scripts
+| Script | What it does |
 |---|---|
-| `app1_name` | Name of #1 most-used app |
-| `app1_mins` | Minutes spent on it |
-| ... | repeat for app2 through app5 |
+| `scripts/sync_all.py` | The whole routine: iPhone import (asks before writing) → Mac → Chrome → dashboard. `--no-serve` skips the dashboard |
+| `scripts/import_iphone.py` | Screenshots → `data/`. `--dry-run` previews. Reads only the top level of `mobile time tracker/`. `sync_all.py` moves imported shots to `imported/<date>/` |
+| `scripts/sync_mac.py` | Appends finished days from `knowledgeC.db` |
+| `scripts/sync_chrome.py` | Appends finished days from Chrome's history DB (Default profile) |
+| `scripts/log.py` | Manual fallback: type one iPhone week in by hand |
 
-#### Categories (minutes)
-| Column | Description |
-|---|---|
-| `cat_social` | Social Networking total mins |
-| `cat_entertainment` | Entertainment total mins |
-| `cat_productivity` | Productivity & Finance total mins |
-| `cat_other` | Everything else |
+⚠ `--full` on either sync script **deletes** everything older than what the source still holds (about 30 days for Mac, 90 for Chrome). Back up `data/` first if you ever need it.
 
-Categories may not sum to `total_mins` — gaps are expected.
+## Data (`data/`, gitignored — back up separately)
 
-#### Behavioral
-| Column | Description | Example |
-|---|---|---|
-| `first_app` | First app you opened that day | `Instagram` |
-| `exercise_yn` | Did you exercise? | `Y` or `N` |
-| `notes` | Free text, anything notable | `felt restless after 9pm` |
+**`screentime.csv`** — iPhone, one row per day. Rows 2026-04-06 → 04-12 are synthetic sample data; real data starts 2026-10-12.
+- `date`, `week_start` (Monday), `total_mins` (exact, from the screenshot)
+- `cat_social`, `cat_entertainment`, `cat_productivity`: filled when the category is in that day's top 3. Categories don't have to add up to the total.
+- `pick_12am` … `pick_11pm`, `app1_name`/`app1_mins` … `app5_*`, `cat_other`, `first_app`, `exercise_yn`: only filled by `log.py`, blank for screenshot imports
+- `notes`: `screenshot import` for imported rows
 
-## Thresholds
-- Under 120 mins (2 hrs) — good day
-- 120-240 mins — watch it
-- Over 240 mins (4 hrs) — freak out mode
+**`iphone_categories.csv`** — `date, rank, category, mins`: the top 3 categories exactly as iOS shows them, including Travel and Other.
 
-## Chrome Data (automatic)
+**`iphone_hourly.csv`** — `date, hour, metric, value, estimated`. `screen_mins` per hour, **estimated** from the bar heights. A day is kept only if its bars add up to within max(5 min, 3%) of the exact total. Long format, so pickups and notifications can be added later as new `metric` values.
 
-```bash
-python3 scripts/sync_chrome.py         # incremental sync
-python3 scripts/sync_chrome.py --full  # overwrite with full history
-```
+**`mac_usage.csv`** — one row per app per day: `date, app_name, bundle_id, mins, sessions, first_use, last_use`.
 
-Close Chrome before running (or the DB may be locked). Writes `data/chrome_history.csv`:
+**`mac_sessions.csv`** — one row per app session: `date, hour, app_name, bundle_id, session_mins`. Feeds the daily rhythm chart, the 14-day grid and the focus stats.
 
-| Column | Description | Example |
-|---|---|---|
-| `date` | The day | `2026-04-06` |
-| `domain` | Bare domain | `github.com` |
-| `visits` | Page navigations | `14` |
-| `total_mins` | Time on domain (30 min/visit cap) | `38.2` |
+**`chrome_history.csv`** — one row per domain per day: `date, domain, visits, total_mins`. Each page visit is capped at 10 min, because Chrome counts how long a tab is open, not attention.
 
-Note: Chrome's `visit_duration` counts wall-time a tab is open, not active attention.
-Each visit is capped at 30 minutes to filter out background/idle tabs.
-
-## Excluded Apps
-- Maps (required navigation, not discretionary)
-
-## Computed Fields (auto in dashboard)
-- Morning pickups (sum of pick_6am to pick_11am)
-- Evening pickups (sum of pick_6pm to pick_11pm)
-- Weekly avg screen time
-- Exercise vs screen time correlation
+## Thresholds (iPhone)
+Under 120 min a day is good · 120–240 is watch it · over 240 is a red day. The Maps app is excluded from all rankings.

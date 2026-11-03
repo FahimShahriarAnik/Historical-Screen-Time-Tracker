@@ -2,11 +2,13 @@
 """
 import_iphone.py — turn iPhone Screen Time screenshots into data rows.
 
-Monthly routine (iOS keeps only ~4 weeks, so don't go longer than that):
+Normally run via scripts/sync_all.py (every 3 weeks). iOS shows only the current
+week + the 3 before it, so a longer gap loses days.
   1. iPhone → Settings → Screen Time → See All App & Website Activity.
      Day tab: screenshot every day (tap each bar, swipe back to earlier weeks).
      Week tab: screenshot each full week (used only as a checksum).
-  2. AirDrop the screenshots into `mobile time tracker/` (subfolders are fine).
+  2. Put the screenshots in `mobile time tracker/` (top level only — sync_all.py
+     moves imported ones to `mobile time tracker/imported/<date>/`).
   3. python3 scripts/import_iphone.py --dry-run   # preview + checks, writes nothing
      python3 scripts/import_iphone.py             # append new days to data/
 
@@ -287,7 +289,7 @@ def main():
     args = ap.parse_args()
 
     folder = Path(args.folder)
-    files = sorted(p for p in folder.rglob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg"))
+    files = sorted(p for p in folder.glob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg"))
     if not files:
         sys.exit(f"No screenshots found in {folder}")
     print(f"{BOLD}Reading {len(files)} screenshots from {folder.name}/{RESET}")
@@ -302,8 +304,10 @@ def main():
             if rec["today"]:
                 skipped.append((p.name, f"{rec['date']} is today at capture time (partial day)"))
                 continue
+            # several shots of one day (e.g. scrolled down to Pickups): keep the most complete, then the latest
+            def rank(r): return (None not in r["chart"], r["total"] is not None, r["cap"])
             prev = days.get(rec["date"])
-            if not prev or cap > prev["cap"]:
+            if not prev or rank(rec) > rank(prev):
                 days[rec["date"]] = rec
         elif rec["kind"] == "week":
             weeks[rec["start"]] = rec

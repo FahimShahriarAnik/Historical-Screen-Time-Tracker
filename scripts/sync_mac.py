@@ -3,11 +3,12 @@
 Sync Mac screen time data from knowledgeC.db into data/mac_usage.csv.
 
 Reads app usage history from macOS Knowledge Store and writes one row
-per app per day. Run anytime — it only appends days not already in the CSV.
+per app per day. Run anytime — it only appends finished days (never today)
+that aren't already in the CSV. macOS keeps only ~30 days.
 
 Usage:
-    python3 scripts/sync_mac.py             # sync all available data
-    python3 scripts/sync_mac.py --full      # overwrite CSV with full history
+    python3 scripts/sync_mac.py             # append new finished days
+    python3 scripts/sync_mac.py --full      # DESTRUCTIVE: rebuild CSV from the ~30 days macOS still has
 
 Requires: Full Disk Access for Terminal/VSCode
   System Settings > Privacy & Security > Full Disk Access
@@ -17,7 +18,7 @@ import argparse
 import csv
 import sqlite3
 import sys
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -203,6 +204,11 @@ def main():
     if not rows and not session_rows:
         print(f"{DIM}No new data to sync.{RESET}")
         return
+
+    # Only finished days — a day synced mid-day would stay partial forever
+    today = date.today().isoformat()
+    rows = [r for r in rows if r[0] < today]
+    session_rows = [r for r in session_rows if r[0] < today]
 
     # Filter out dates we already have (for incremental)
     if mode == "a":
