@@ -19,3 +19,7 @@ __pycache__/
 
 # Personal data — kept local, never committed
 *.csv
+
+# iPhone screenshots (personal) + compiled OCR helper
+mobile time tracker/
+scripts/.bin/
