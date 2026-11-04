@@ -2255,7 +2255,7 @@ async function initOverview() {
     const mark = (arr, s, e) => { for (let t = Math.max(0, Math.floor(s - t0)); t < Math.min(N, Math.ceil(e - t0)); t++) arr[t] = 1; };
     [[E, [18, 19, 20, 21, 22, 23]], [M, [...Array(14).keys()]]].forEach(([d, hs]) => hs.forEach(h => {
       const m = ph[d][h], s = ovAt(d, h); if (m >= OV.PHONE_ACTIVE) { mark(act, s, s + 60); hrs.push({ s, m }); } }));
-    macScreen.forEach(iv => { if (iv.e > t0 && iv.s < t1) { mark(act, iv.s, iv.e); mark(exact, iv.s, iv.e); } });
+    [macScreen, macApp].forEach(list => list.forEach(iv => { if (iv.e > t0 && iv.s < t1) { mark(act, iv.s, iv.e); mark(exact, iv.s, iv.e); } }));
     awakeEv.forEach(iv => { if (iv.s >= t0 && iv.s < t1) { mark(act, iv.s, Math.max(iv.e, iv.s + 1)); mark(exact, iv.s, Math.max(iv.e, iv.s + 1)); } });
     const lo = ovAt(M, 5) - t0, hi = ovAt(M, 8) - t0; let best = null, rs = -1;
     for (let t = 0; t <= N; t++) {
@@ -2358,7 +2358,7 @@ async function initOverview() {
       <h3>Weekdays: one 50-minute focus block, browsing batched, phone in another room</h3></div>
     <p class="ov-why">Only <b>${Math.round(fShare(fBase))}%</b> of weekdays had a 50-minute stretch of coding/writing (longest block, median ${Math.round(ovMedian(fBase.map(d => focus[d]?.longest || 0)))} min).
       Chrome ends <b>${Math.round(100 * ends.browser / nEnds)}%</b> of your work stretches (chat only ${Math.round(100 * ends.chat / nEnds)}%), and in the Mac's idle gaps you pick up the phone (${Math.round(inGap)} vs ${Math.round(inBusy)} min/hour).</p>
-    <p class="ov-how"><b>How:</b> keep a "look up later" note and open Chrome only for the task; phone in another room, WhatsApp quit.
+    <p class="ov-how"><b>How:</b> keep a "look up later" note and open Chrome only for the task — a lookup past 10 min ends the block; phone in another room, WhatsApp quit.
       ${eveReach > 1.5 * dayReach ? `Start it after 5 PM: stretches started then reach 25 min ${Math.round(eveReach)}% of the time vs ${Math.round(dayReach)}% earlier — and stop by 10 PM so it doesn't feed the night. ` : ''}Counts: VS Code, Obsidian, Terminal, papers, AI coding apps; detours under ${OV.FOCUS_GAP} min don't break it.</p>
     <div class="ov-track">
       <div><div class="v">${Math.round(fShare(fBase))}%</div><div class="l">baseline, weekdays with one</div></div>

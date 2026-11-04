@@ -7,7 +7,7 @@ How the **Overview** tab and its two actions were chosen. This file explains the
 ## How it was done (2026-11-03)
 1. **Blind pass.** Four analysts looked only at `data/` and the raw Mac activity log, knowledgeC (Opus / Sonnet / Fable models). They did not see the dashboard or any earlier findings. Each had one lens:
    - whole picture, across devices;
-   - minute-level Mac events (this one stopped early on a rate limit);
+   - minute-level Mac events, at 1-second resolution;
    - iPhone category by hour, read from screenshot pixels;
    - unconventional methods.
 2. **Cross-check.** Their findings were compared with the dashboard's existing analyses and with `decisions.md`. Each was marked as matched, refined, contradicted or new.
@@ -39,13 +39,12 @@ Also used:
 |---|---|
 | After midnight | iPhone minutes 00:00–05:59, assigned to the morning they end in |
 | Work night | the night before Mon–Fri (Sun–Thu nights) |
-| Screens dark | longest stretch from 6 PM to 2 PM next day that touches 05:00–08:00 and has: no phone hour with ≥ 2 min, no Mac screen-on, no *outgoing* iPhone message or call. Morning alarms end it. Phone use in a boundary hour is assumed to sit at its far side. Hour-level phone data → about ±30 min |
+| Screens dark | longest stretch from 6 PM to 2 PM next day that touches 05:00–08:00 and has: no phone hour with ≥ 2 min, no Mac activity (screen-on ∪ app intervals; the screen stream alone has gaps), no *outgoing* iPhone message or call. Morning alarms end it. Phone use in a boundary hour is assumed to sit at its far side. Hour-level phone data → about ±30 min |
 | Focus block | Mac "Build" apps (code, notes, papers, AI coding apps; not Chrome) back-to-back, detours ≤ 3 min, length = wall-clock span |
 | Phone in Mac gaps | inside each day's first→last Mac hour: phone min/h in hours with Mac < 5 min vs hours with Mac ≥ 30 min |
 | No-category floor | per day max(0, gray − 9 × the #3 category's minutes) |
 
 ## Not done yet
-- Minute-level Mac interruption chains (the analyst was cut off).
 - Pickups and notifications.
 - Per-app iPhone data: the Week view's "Most Used" list, or tapping an hour bar.
 - Whether the uncategorized night time is one app.
