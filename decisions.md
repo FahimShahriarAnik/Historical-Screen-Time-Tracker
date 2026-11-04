@@ -8,6 +8,10 @@ Chosen from a fresh-eyes re-analysis (`analysis/README.md`; personal numbers sta
 2. **Weekdays: one 50-minute focus block.** Browsing batched (a "look up later" note), phone in another room, WhatsApp quit.
    - Why: Chrome, not chat, ends most work stretches, and the phone fills the Mac's idle gaps.
 
+Each tab also has one decision, tracked there:
+- **Mac:** start a timer within an hour of opening the Mac. The first focus stretch usually starts many hours in, and days that start early hold far more focus. The user's own observation, "with a timer I get things done", shows in the data.
+- **iPhone:** a Social limit of 30 min/day with Block at End of Limit. Social is in the top 3 every day, and the bedtime action doesn't reach daytime scrolling.
+
 Review at each sync. The baseline is the period before 2026-11-03.
 
 ---

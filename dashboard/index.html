@@ -55,16 +55,6 @@
     .chart-wrap.h360 { height: 360px; }
     .chart-wrap.h180 { height: 180px; }
 
-    /* ── 7-day strip ── */
-    .strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-    .day-tile {
-      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px;
-      padding: 12px 8px; text-align: center;
-    }
-    .day-tile .dt-label  { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
-    .day-tile .dt-total  { font-size: 20px; font-weight: 700; margin: 5px 0 3px; font-variant-numeric: tabular-nums; }
-    .day-tile .dt-deep   { font-size: 11px; color: #6366f1; margin-bottom: 3px; }
-    .day-tile .dt-app    { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .green  { color: #22c55e; }
     .yellow { color: #f59e0b; }
     .red    { color: #ef4444; }
@@ -73,129 +63,6 @@
     .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #94a3b8; }
     .legend-dot  { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-
-    /* ── Category Explorer ── */
-    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .cat-block { background: #0f1117; border-radius: 8px; padding: 12px; }
-    .cat-block-title {
-      display: flex; align-items: center; gap: 7px;
-      font-weight: 600; font-size: 12px; color: #e2e8f0; margin-bottom: 8px;
-    }
-    .cat-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-    .app-chip {
-      font-size: 11px; padding: 2px 9px; border-radius: 999px;
-      background: #1e2235; color: #64748b; cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-    .app-chip.used { color: #94a3b8; }
-    .app-chip:hover { background: #2d3148; color: #e2e8f0; }
-    .app-chip:active { transform: scale(0.96); }
-
-    /* ── Chrome ── */
-    .chrome-callout {
-      background: #111a2e; border: 1px solid #1e3a5f;
-      border-radius: 6px; padding: 10px 12px; margin-bottom: 14px;
-      font-size: 11px; color: #64748b; line-height: 1.7;
-    }
-    .chrome-callout strong { color: #94a3b8; }
-    .chrome-rows { display: flex; flex-direction: column; gap: 7px; }
-    .cr { display: flex; align-items: center; gap: 8px; }
-    .cr-domain  {
-      width: 155px; flex-shrink: 0; font-size: 12px; color: #cbd5e1;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .cr-domain .idle-warn { font-size: 10px; color: #f59e0b; margin-left: 3px; }
-    .cr-track   { flex: 1; height: 12px; background: #0f1117; border-radius: 2px; overflow: hidden; }
-    .cr-bar     { height: 100%; border-radius: 2px; }
-    .cr-work    { background: #14b8a6; }   /* teal — matches browse category */
-    .cr-other   { background: #374151; }
-    .cr-meta    { width: 80px; flex-shrink: 0; font-size: 11px; color: #475569; text-align: right; font-variant-numeric: tabular-nums; line-height: 1.3; }
-
-    /* Chrome stacked bar (headline) */
-    .chrome-stacked { margin: 6px 0 18px; }
-    .chrome-stacked-bar {
-      display: flex; height: 28px; border-radius: 6px; overflow: hidden;
-      background: #0f1117; border: 1px solid #1e2235;
-    }
-    .chrome-stacked-seg {
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 600; color: #f1f5f9;
-      white-space: nowrap; overflow: hidden;
-      transition: filter 0.15s;
-    }
-    .chrome-stacked-seg:hover { filter: brightness(1.15); }
-    .chrome-stacked-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 11px; }
-    .chrome-stacked-legend .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
-    .chrome-stacked-legend .css-pct { color: #64748b; margin-left: 4px; font-variant-numeric: tabular-nums; }
-
-    /* Chrome per-category panels */
-    .chrome-cats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .chrome-cat-panel {
-      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px; padding: 12px 14px;
-    }
-    .ccp-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-    .ccp-name { font-size: 12px; font-weight: 600; color: #e2e8f0; }
-    .ccp-meta { font-size: 11px; color: #64748b; margin-left: auto; font-variant-numeric: tabular-nums; }
-    @media (max-width: 860px) { .chrome-cats { grid-template-columns: 1fr; } }
-
-    /* ── Weekly Patterns ── */
-    .wp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .wp-block {
-      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px; padding: 14px;
-    }
-    .wp-block-title {
-      font-size: 11px; font-weight: 600; color: #94a3b8;
-      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;
-    }
-    .wp-block-title .wp-sub {
-      font-weight: 500; color: #475569; text-transform: none;
-      letter-spacing: 0; margin-left: 8px;
-    }
-    .wp-tod {
-      display: grid; grid-template-columns: 50px repeat(4, 1fr); gap: 4px; font-size: 11px;
-    }
-    .wp-tod-head {
-      color: #64748b; font-size: 10px; text-transform: uppercase;
-      text-align: center; padding-bottom: 4px; line-height: 1.4;
-    }
-    .wp-tod-head span { color: #475569; font-weight: 400; }
-    .wp-tod-row-label { color: #94a3b8; display: flex; align-items: center; font-weight: 500; }
-    .wp-tod-cell {
-      border-radius: 4px; padding: 10px 6px; text-align: center;
-      font-variant-numeric: tabular-nums; color: #e2e8f0; font-weight: 500;
-    }
-    .wp-insights { display: flex; flex-direction: column; gap: 8px; }
-    .wp-insight {
-      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px;
-      padding: 10px 14px; font-size: 12.5px; color: #cbd5e1; line-height: 1.55;
-      display: flex; gap: 12px; align-items: flex-start;
-    }
-    .wp-insight-tag {
-      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
-      color: #818cf8; background: rgba(99,102,241,0.12); padding: 4px 9px; border-radius: 999px;
-      white-space: nowrap; flex-shrink: 0; margin-top: 1px;
-    }
-    .wp-insight strong { color: #f1f5f9; font-weight: 600; }
-    .wp-insight em { color: #94a3b8; font-style: normal; }
-    @media (max-width: 860px) { .wp-grid { grid-template-columns: 1fr; } }
-
-    /* ── App Detail panel ── */
-    #app-detail { display: none; }
-    .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .detail-header h2 { font-size: 15px; font-weight: 600; color: #f1f5f9; text-transform: none; letter-spacing: 0; }
-    .detail-close {
-      background: #1e2235; border: 1px solid #2d3148; color: #64748b;
-      border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 13px;
-    }
-    .detail-close:hover { color: #e2e8f0; }
-    .detail-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-    .stat-chip {
-      background: #0f1117; border: 1px solid #1e2235; border-radius: 8px;
-      padding: 10px 14px; min-width: 120px;
-    }
-    .stat-chip .sc-val { font-size: 22px; font-weight: 700; color: #f1f5f9; font-variant-numeric: tabular-nums; }
-    .stat-chip .sc-lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
-    .detail-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
     /* ── Top menu (Mac | iPhone) ── */
     .tabs { display: flex; gap: 4px; background: #0b0d14; border: 1px solid #1e2235; border-radius: 9px; padding: 3px; }
@@ -268,9 +135,6 @@
     @media (max-width: 860px) {
       main { grid-template-columns: 1fr; padding: 12px; }
       .full { grid-column: 1; }
-      .strip { grid-template-columns: repeat(4, 1fr); }
-      .cat-grid { grid-template-columns: repeat(2, 1fr); }
-      .detail-charts { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -289,358 +153,12 @@
 <!-- ═══════════════════════════ Overview (default) ═══════════════════════════ -->
 <main id="main-overview" class="ov" hidden></main>
 
-<main id="main" hidden>
-
-  <!-- 1. Seven-day summary -->
-  <div class="card full">
-    <h2>Last 7 Days</h2>
-    <div class="strip" id="strip"></div>
-  </div>
-
-  <!-- MAIN 1. Category mix -->
-  <div class="card full">
-    <h2>Daily Category Mix</h2>
-    <p class="sub">Last 30 days — stacked by app category</p>
-    <div class="legend" id="mix-legend"></div>
-    <div class="chart-wrap h360"><canvas id="c-mix"></canvas></div>
-  </div>
-
-  <!-- MAIN 2. Day envelope -->
-  <div class="card full">
-    <h2>Your Mac day: first → last activity</h2>
-    <p class="sub">Exact times, 6 AM → 6 AM · blue = the day ran past 12:30 AM (the bedtime action), gray = it didn't</p>
-    <div class="chart-wrap h300"><canvas id="c-envelope"></canvas></div>
-  </div>
-
-  <!-- 3. Focus ladder -->
-  <div class="card">
-    <h2>Work time by stretch length</h2>
-    <p class="sub">Minutes per day in code/notes/papers apps, by how long each unbroken stretch lasted (detours ≤ 3 min allowed) · brighter = longer</p>
-    <div class="legend" id="ladder-legend"></div>
-    <div class="chart-wrap h240"><canvas id="c-ladder"></canvas></div>
-  </div>
-
-  <!-- 4. Month by month -->
-  <div class="card">
-    <h2>Month by month</h2>
-    <p class="sub">Average minutes per day · Chrome time split by site · gaps = months with no data</p>
-    <div class="legend" id="months-legend"></div>
-    <div class="chart-wrap h240"><canvas id="c-months"></canvas></div>
-  </div>
-
-  <!-- 5. Daily rhythm -->
-  <div class="card full">
-    <h2>Daily Rhythm — Category by Hour</h2>
-    <p class="sub">Avg minutes per hour, by app category (all-time)</p>
-    <div class="legend" id="rhythm-legend"></div>
-    <div class="chart-wrap h300"><canvas id="c-rhythm"></canvas></div>
-  </div>
-
-  <!-- 6. Chrome breakdown -->
-  <div class="card full">
-    <h2>Chrome — Category Breakdown</h2>
-    <p class="sub">Last 30 days · grouped by purpose · <code>app.blackbox.ai</code> and the Tab Suspender extension excluded as background noise</p>
-    <div class="chrome-callout">
-      <strong>Ranked by visits</strong> — the more honest signal. Each visit = one page navigation
-      (clicking a link, typing a URL, reload). Leaving a tab open in the background does <em>not</em> bump it.
-      Time (in grey) is wall-clock tab-open time, capped at 10 min/visit; domains with
-      <strong style="color:#f59e0b">⚠</strong> avg &gt;8 min/visit and are usually idle background tabs.
-    </div>
-    <div class="chrome-stacked" id="chrome-stacked"></div>
-    <div class="chrome-cats" id="chrome-cats"></div>
-  </div>
-
-  <!-- How apps are classified (collapsed) -->
-  <div class="card full">
-    <details>
-      <summary style="cursor:pointer"><h2 style="display:inline">App categories</h2>
-        <span class="sub" style="margin-left:8px">how apps are classified · click any app for its details</span></summary>
-      <div class="cat-grid" id="cat-grid" style="margin-top:12px"></div>
-    </details>
-  </div>
-
-  <!-- App Detail drill-down -->
-  <div class="card full" id="app-detail">
-    <div class="detail-header">
-      <h2 id="detail-title">App Detail</h2>
-      <button class="detail-close" id="detail-close">✕ close</button>
-    </div>
-    <div class="detail-stats" id="detail-stats"></div>
-    <div class="detail-charts">
-      <div>
-        <p class="sub">Daily usage — last 30 days</p>
-        <div class="chart-wrap h200"><canvas id="detail-daily"></canvas></div>
-      </div>
-      <div>
-        <p class="sub">When do you use it? (avg session mins by hour)</p>
-        <div class="chart-wrap h200"><canvas id="detail-hourly"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-</main>
+<main id="main" hidden></main>
 
 <!-- ═══════════════════════════ iPhone view ═══════════════════════════ -->
-<main id="main-iphone" hidden>
-
-  <div class="card full">
-    <h2>iPhone at a Glance</h2>
-    <p class="sub">Goal: under 2h/day · 4h/day is the freak-out line</p>
-    <div class="ip-tiles" id="ip-tiles"></div>
-  </div>
-
-  <!-- MAIN 1 -->
-  <div class="card full">
-    <h2>Every day, and how much of it was after midnight</h2>
-    <p class="sub">Exact daily totals · blue = after midnight (12–6 AM, estimated from the bars) · line = 7-day average · dashed = 2h goal and 4h line</p>
-    <div class="legend" id="ip-daily-legend"></div>
-    <div class="chart-wrap h300"><canvas id="ip-daily"></canvas></div>
-  </div>
-
-  <!-- MAIN 2 -->
-  <div class="card full">
-    <h2>When the phone is used</h2>
-    <p class="sub">Average minutes per hour, 6 AM → 6 AM · blue = after midnight · <em>estimated</em> from the screenshot bars</p>
-    <div class="chart-wrap h240"><canvas id="ip-hourly"></canvas></div>
-  </div>
-
-  <div class="card full">
-    <h2>What the categories show — and what they can't</h2>
-    <p class="sub">Screenshots name only each day's top 3 categories. Light gray = minutes that can't be in any category: more than the 9 hidden categories (each ≤ the #3) could hold</p>
-    <div class="legend" id="ip-cat-legend"></div>
-    <div class="chart-wrap h300"><canvas id="ip-cats"></canvas></div>
-    <table class="ip-cat-table" id="ip-cat-table"></table>
-  </div>
-
-  <div class="card">
-    <h2>Weekly Average</h2>
-    <p class="sub">Average per day, Mon–Sun weeks · partial weeks marked</p>
-    <div class="chart-wrap h240"><canvas id="ip-weekly"></canvas></div>
-  </div>
-
-  <div class="card">
-    <h2>Weekdays vs weekends: same total, different hours</h2>
-    <p class="sub">Average minutes per part of the day · after midnight counts toward the morning it ends in</p>
-    <div class="legend" id="ip-pod-legend"></div>
-    <div class="chart-wrap h240"><canvas id="ip-pod"></canvas></div>
-  </div>
-
-  <div class="card">
-    <h2>Messages sent per phone-hour</h2>
-    <p class="sub">iPhone messages you sent (synced to the Mac) per 60 phone-minutes · low = scrolling/watching, not chatting</p>
-    <div class="chart-wrap h240"><canvas id="ip-msg"></canvas></div>
-  </div>
-
-  <div class="card">
-    <h2>Patterns</h2>
-    <p class="sub">Computed from the data above</p>
-    <div class="wp-insights" id="ip-insights"></div>
-  </div>
-
-  <div class="card full">
-    <h2>About this data</h2>
-    <ul class="ip-notes" id="ip-notes"></ul>
-  </div>
-</main>
+<main id="main-iphone" hidden></main>
 
 <script>
-// ════════════════════════════════════════════════════════════════════════════
-// Constants — edit CATS here to reclassify apps
-// ════════════════════════════════════════════════════════════════════════════
-const CATS = {
-  deep_work:     ['VS Code','PyCharm','Xcode','Terminal','Obsidian','Claude','Figma','Linear','Notion','SuperWhisper'],
-  comms:         ['Slack','WhatsApp','Messages','Discord','Zoom','Telegram','FaceTime','Mail'],
-  browse:        ['Chrome','Safari'],       // Chrome = Browse, NOT Deep Work
-  entertainment: ['Spotify','Music','Podcasts','QuickTime'],
-  system:        ['Finder','System Settings','Archive Utility','Activity Monitor','Preview','1Password'],
-};
-const CAT_LABELS = { deep_work:'Deep Work', comms:'Comms', browse:'Browse', entertainment:'Entertainment', system:'System', other:'Other' };
-const CAT_COLORS = {
-  deep_work:    '#6366f1',   // indigo
-  comms:        '#f59e0b',   // amber
-  browse:       '#14b8a6',   // teal  (distinct from indigo)
-  entertainment:'#ec4899',   // pink
-  system:       '#6b7280',   // gray
-  other:        '#1e293b',   // near-black
-};
-const CAT_KEYS = ['deep_work','comms','browse','entertainment','system','other'];
-
-const WORK_DOMAINS = new Set([
-  'github.com','stackoverflow.com','docs.google.com','drive.google.com',
-  'sheets.google.com','slides.google.com','mail.google.com','meet.google.com',
-  'anthropic.com','claude.ai','app.blackbox.ai',
-  'linear.app','notion.so','figma.com','vercel.com','railway.app',
-  'npmjs.com','developer.mozilla.org','arxiv.org','scholar.google.com',
-  'chi2026.acm.org','researchgate.net','pypi.org','docs.python.org',
-  'developers.google.com','aws.amazon.com','console.aws.amazon.com',
-]);
-
-// Chrome domain → category (suffix-matched: console.firebase.google.com → dev)
-const CHROME_CATS = {
-  dev: [
-    'github.com','vercel.com','supabase.com','claude.ai','aistudio.google.com',
-    'perplexity.ai','stackoverflow.com','npmjs.com','console.firebase.google.com',
-    'developer.mozilla.org','pypi.org','docs.python.org','railway.app','localhost',
-  ],
-  research: [
-    'acm.org','arxiv.org','wikipedia.org','substack.com','medium.com','docs.google.com',
-    'scholar.google.com','researchgate.net',
-  ],
-  entertainment: [
-    'youtube.com','netflix.com','reddit.com','twitch.tv','twitter.com','x.com',
-    'instagram.com','tiktok.com',
-  ],
-  comms: [
-    'mail.google.com','linkedin.com','calendar.google.com','web.whatsapp.com',
-    'messenger.com','meet.google.com','slack.com','discord.com',
-  ],
-  shopping: [
-    'amazon.com','jomashop.com','fragrancenet.com','fragrancex.com','theticketworld.com',
-    'ebay.com','etsy.com',
-  ],
-  search: ['google.com','duckduckgo.com','bing.com'],
-};
-const CHROME_CAT_LABELS = {
-  dev:'Dev / Deep Work', research:'Research', entertainment:'Entertainment',
-  comms:'Comms', shopping:'Shopping', search:'Search', other:'Other',
-};
-const CHROME_CAT_COLORS = {
-  dev:           '#4f46e5',  // deeper indigo
-  research:      '#0ea5e9',  // sky blue
-  entertainment: '#ec4899',  // pink
-  comms:         '#f59e0b',  // amber
-  shopping:      '#a855f7',  // purple
-  search:        '#64748b',  // slate
-  other:         '#374151',  // dark gray
-};
-const CHROME_CAT_KEYS = ['dev','research','entertainment','comms','shopping','search','other'];
-
-// Domains to exclude entirely (automated / background noise)
-const CHROME_EXCLUDE = new Set(['app.blackbox.ai', 'fiabciakcmgepblmdkmemdbbkilneeeh']);  // 2nd id = Tab Suspender extension
-
-// ─── Chrome time → Mac category overrides ──────────────────────────────────
-// Time spent on these domains is redistributed from "Browse" into the listed
-// Mac category for the Mac-side charts (Daily Mix, Daily Rhythm, Weekday vs
-// Weekend, % deep work tile). The Chrome breakdown panel is unaffected.
-// To add/remove a domain: edit one of the arrays below. Suffix-matched, so
-// "github.com" also catches "subdomain.github.com".
-// Anything not listed here defaults to "browse".
-const CHROME_TO_MAC_CAT = {
-  deep_work: [
-    // AI tools
-    'claude.ai','perplexity.ai','gemini.google.com','aistudio.google.com',
-    'chatgpt.com','chat.openai.com',
-    // Code / docs
-    'github.com','stackoverflow.com',
-    // Writing / research
-    'overleaf.com','arxiv.org','acm.org',
-    // Dev infra
-    'vercel.com','supabase.com','console.firebase.google.com',
-  ],
-  entertainment: [
-    'youtube.com','netflix.com','reddit.com','twitter.com','x.com',
-    'instagram.com','tiktok.com','twitch.tv',
-  ],
-  comms: [
-    'mail.google.com',
-  ],
-};
-
-const PALETTE = ['#6366f1','#14b8a6','#22c55e','#f59e0b','#ec4899','#06b6d4','#a855f7','#f97316'];
-
-const DOW_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const DOW_FULL  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-
-const TOD_BUCKETS = [
-  { key:'morning',   label:'Morning',    desc:'5am–12pm' },
-  { key:'afternoon', label:'Afternoon',  desc:'12pm–6pm' },
-  { key:'evening',   label:'Evening',    desc:'6pm–10pm' },
-  { key:'late',      label:'Late Night', desc:'10pm–5am' },
-];
-
-function bucketHour(h) {
-  if (h >= 5  && h < 12) return 'morning';
-  if (h >= 12 && h < 18) return 'afternoon';
-  if (h >= 18 && h < 22) return 'evening';
-  return 'late';
-}
-
-// Module-scope data (set in init, used by detail panel)
-let _usage = [], _sessions = [];
-
-// ════════════════════════════════════════════════════════════════════════════
-// Utilities
-// ════════════════════════════════════════════════════════════════════════════
-function getCat(name) {
-  for (const [k, apps] of Object.entries(CATS)) if (apps.includes(name)) return k;
-  return 'other';
-}
-
-function getChromeCat(domain) {
-  if (!domain) return 'other';
-  const d = domain.toLowerCase();
-  for (const [k, list] of Object.entries(CHROME_CATS)) {
-    for (const entry of list) {
-      if (d === entry || d.endsWith('.' + entry)) return k;
-    }
-  }
-  return 'other';
-}
-
-// Map a Chrome domain to a Mac category (for redistributing Chrome time).
-// Returns 'browse' if not explicitly tagged.
-function getChromeMacCat(domain) {
-  if (!domain) return 'browse';
-  const d = domain.toLowerCase();
-  for (const [k, list] of Object.entries(CHROME_TO_MAC_CAT)) {
-    for (const entry of list) {
-      if (d === entry || d.endsWith('.' + entry)) return k;
-    }
-  }
-  return 'browse';
-}
-
-// For each date, compute the proportional split of Chrome wall-clock time
-// across Mac categories. Used to redistribute Mac-side Chrome minutes.
-// Returns: { [date]: { deep_work, entertainment, browse, comms, ... } }
-function buildChromeShares(chrome) {
-  const byDate = {};
-  chrome.forEach(r => {
-    if (!r.domain || CHROME_EXCLUDE.has(r.domain)) return;
-    const m = +r.total_mins;
-    if (!isFinite(m) || m <= 0) return;
-    const k = getChromeMacCat(r.domain);
-    const e = byDate[r.date] ??= { _total: 0 };
-    e[k] = (e[k] ?? 0) + m;
-    e._total += m;
-  });
-  const out = {};
-  for (const [date, e] of Object.entries(byDate)) {
-    if (e._total <= 0) continue;
-    const share = {};
-    for (const [k, v] of Object.entries(e)) {
-      if (k === '_total') continue;
-      share[k] = v / e._total;
-    }
-    out[date] = share;
-  }
-  return out;
-}
-
-// Given a usage row, return { [mac_cat]: mins } — splits Chrome rows across
-// categories using chromeShares. Other apps return a single entry.
-function rowCatMins(row, chromeShares) {
-  const mins = +row.mins;
-  if (row.app_name !== 'Chrome') {
-    return { [getCat(row.app_name)]: mins };
-  }
-  const share = chromeShares?.[row.date];
-  if (!share) return { browse: mins };
-  const out = {};
-  for (const [k, p] of Object.entries(share)) out[k] = mins * p;
-  return out;
-}
-
 function parseCSV(txt) {
   const lines = txt.trim().split('\n');
   if (lines.length < 2) return [];
@@ -711,396 +229,6 @@ const TIP  = { backgroundColor:'#1e2235', titleColor:'#e2e8f0', bodyColor:'#94a3
 const BASE = { responsive:true, maintainAspectRatio:false, animation:false, plugins:{ legend:{ display:false }, tooltip:TIP } };
 
 // ════════════════════════════════════════════════════════════════════════════
-// Section 1 — 7-day summary strip
-// ════════════════════════════════════════════════════════════════════════════
-function buildStrip(usage, chromeShares) {
-  const dates = uniqSorted(usage.map(r => r.date)).slice(-7);
-  document.getElementById('strip').innerHTML = dates.map(date => {
-    const rows     = usage.filter(r => r.date === date);
-    const total    = rows.reduce((s, r) => s + +r.mins, 0);
-    let deepMins   = 0;
-    rows.forEach(r => { deepMins += rowCatMins(r, chromeShares).deep_work || 0; });
-    const deepPct  = total > 0 ? Math.round(deepMins / total * 100) : 0;
-    const top      = [...rows].sort((a, b) => +b.mins - +a.mins)[0]?.app_name ?? '—';
-    const d        = new Date(date + 'T12:00:00');
-    const cls      = threshold(total);
-    return `<div class="day-tile">
-      <div class="dt-label">${d.toLocaleDateString('en-US',{weekday:'short'})}<br>${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
-      <div class="dt-total ${cls}">${fmtHM(total)}</div>
-      <div class="dt-deep">${deepPct}% deep · ${fmtHM(deepMins)}</div>
-      <div class="dt-app"><span class="app-chip used" data-app="${top}" style="background:none;padding:0">${top}</span></div>
-    </div>`;
-  }).join('');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// Category Explorer
-// ════════════════════════════════════════════════════════════════════════════
-function buildCatExplorer(usage) {
-  // Apps that actually appear in usage data
-  const usedApps = new Set(usage.map(r => r.app_name));
-
-  // All defined category blocks
-  const blocks = CAT_KEYS.filter(k => k !== 'other').map(k => {
-    const chips = CATS[k].map(app => {
-      const cls = usedApps.has(app) ? 'app-chip used' : 'app-chip';
-      return `<span class="${cls}" data-app="${app}">${app}</span>`;
-    }).join('');
-    return `<div class="cat-block">
-      <div class="cat-block-title">
-        <span class="legend-dot" style="background:${CAT_COLORS[k]}"></span>
-        ${CAT_LABELS[k]}
-      </div>
-      <div class="cat-chips">${chips}</div>
-    </div>`;
-  });
-
-  // Other block: apps in usage not in any defined category
-  const otherApps = [...usedApps].filter(a => getCat(a) === 'other').sort();
-  if (otherApps.length) {
-    const chips = otherApps.map(app =>
-      `<span class="app-chip used" data-app="${app}">${app}</span>`
-    ).join('');
-    blocks.push(`<div class="cat-block">
-      <div class="cat-block-title">
-        <span class="legend-dot" style="background:${CAT_COLORS.other}"></span>
-        Other (uncategorised)
-      </div>
-      <div class="cat-chips">${chips}</div>
-    </div>`);
-  }
-
-  document.getElementById('cat-grid').innerHTML = blocks.join('');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// Section 2 — Category mix stacked bar
-// ════════════════════════════════════════════════════════════════════════════
-function buildMix(usage, chromeShares) {
-  const dates = uniqSorted(usage.map(r => r.date)).slice(-30);
-  const dateSet = new Set(dates);
-
-  // Pre-aggregate: totals[date][cat] = minutes (with Chrome redistributed)
-  const totals = {};
-  dates.forEach(d => totals[d] = Object.fromEntries(CAT_KEYS.map(k => [k, 0])));
-  usage.forEach(r => {
-    if (!dateSet.has(r.date)) return;
-    const bd = rowCatMins(r, chromeShares);
-    for (const [k, m] of Object.entries(bd)) {
-      if (totals[r.date][k] !== undefined) totals[r.date][k] += m;
-    }
-  });
-
-  document.getElementById('mix-legend').innerHTML = CAT_KEYS.map(k =>
-    `<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[k]}"></span>${CAT_LABELS[k]}</span>`
-  ).join('');
-
-  new Chart(document.getElementById('c-mix'), {
-    type: 'bar',
-    data: {
-      labels: dates.map(dateLabelDow),
-      datasets: CAT_KEYS.map(k => ({
-        label: CAT_LABELS[k],
-        data: dates.map(date => +totals[date][k].toFixed(1)),
-        backgroundColor: CAT_COLORS[k],
-        borderWidth: 0,
-      })),
-    },
-    options: {
-      ...BASE,
-      scales: {
-        x: { stacked:true, grid:{ display:false }, ticks:{ maxRotation:0, autoSkip:false, font:{ size:10 } } },
-        y: {
-          stacked: true,
-          beginAtZero: true,
-          ticks: {
-            stepSize: 15,
-            callback: v => v % 60 === 0 ? `${v/60}h` : '',
-          },
-          grid: {
-            color: ctx => ctx.tick.value % 60 === 0 ? '#1e2235' : 'rgba(30,34,53,0.45)',
-          },
-          title: { display:true, text:'Hours', color:'#64748b' },
-        },
-      },
-      plugins: {
-        ...BASE.plugins,
-        tooltip: { ...TIP, mode:'index',
-          callbacks: {
-            title: items => dateLabelLong(dates[items[0].dataIndex]),
-            label: ctx => `${ctx.dataset.label}: ${fmtHM(ctx.raw)}`,
-          },
-        },
-      },
-    },
-  });
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// Section 5a — Daily rhythm: category × hour line chart
-// ════════════════════════════════════════════════════════════════════════════
-function buildRhythm(sessions, chromeShares) {
-  // sums[cat][hour] = total session minutes; days[cat][hour] = unique dates with activity
-  const sums = Object.fromEntries(CAT_KEYS.map(k => [k, new Array(24).fill(0)]));
-  const days = Object.fromEntries(CAT_KEYS.map(k => [k, Array.from({length:24}, () => new Set())]));
-
-  sessions.forEach(r => {
-    const h = +r.hour;
-    if (h < 0 || h >= 24) return;
-    const m = +r.session_mins;
-    if (r.app_name === 'Chrome') {
-      const share = chromeShares?.[r.date];
-      if (share) {
-        for (const [k, p] of Object.entries(share)) {
-          if (sums[k]) {
-            sums[k][h] += m * p;
-            if (m * p > 0) days[k][h].add(r.date);
-          }
-        }
-      } else {
-        sums.browse[h] += m;
-        days.browse[h].add(r.date);
-      }
-    } else {
-      const k = getCat(r.app_name);
-      sums[k][h] += m;
-      days[k][h].add(r.date);
-    }
-  });
-
-  const HLBLS = Array.from({length:24}, (_, h) =>
-    h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`
-  );
-
-  document.getElementById('rhythm-legend').innerHTML = CAT_KEYS.map(k =>
-    `<span class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[k]}"></span>${CAT_LABELS[k]}</span>`
-  ).join('');
-
-  new Chart(document.getElementById('c-rhythm'), {
-    type: 'line',
-    data: {
-      labels: HLBLS,
-      datasets: CAT_KEYS.map(k => ({
-        label: CAT_LABELS[k],
-        data: sums[k].map((s, h) => {
-          const n = days[k][h].size;
-          return n ? +(s / n).toFixed(1) : 0;
-        }),
-        borderColor: CAT_COLORS[k],
-        backgroundColor: CAT_COLORS[k] + '22',
-        tension: 0.35, borderWidth: 1.8, pointRadius: 0, fill: false,
-      })),
-    },
-    options: {
-      ...BASE,
-      interaction: { mode:'index', intersect:false },
-      scales: {
-        x: { grid:{ display:false } },
-        y: { title:{ display:true, text:'Avg minutes per active hour', color:'#64748b' } },
-      },
-      plugins: {
-        ...BASE.plugins,
-        tooltip: { ...TIP, callbacks:{ label: ctx => `${ctx.dataset.label}: ${ctx.raw} min` } },
-      },
-    },
-  });
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// Section 6 — Chrome domain breakdown
-// ════════════════════════════════════════════════════════════════════════════
-function buildChrome(chrome) {
-  const stackedEl = document.getElementById('chrome-stacked');
-  const catsEl    = document.getElementById('chrome-cats');
-  if (!chrome.length) {
-    stackedEl.innerHTML = '<p class="dim">No data. Run: <code>python3 scripts/sync_chrome.py</code></p>';
-    return;
-  }
-
-  // Last 30 days, exclude noise domains
-  const dates  = uniqSorted(chrome.map(r => r.date));
-  const cutoff = dates.slice(-30)[0] ?? '1970-01-01';
-  const recent = chrome.filter(r => r.date >= cutoff && !CHROME_EXCLUDE.has(r.domain));
-
-  // Aggregate per domain
-  const agg = {};
-  recent.forEach(r => {
-    if (!r.domain) return;
-    const e = agg[r.domain] ??= { visits:0, mins:0 };
-    e.visits += +r.visits;
-    e.mins   += +r.total_mins;
-  });
-
-  // Roll up into category buckets
-  const buckets = Object.fromEntries(CHROME_CAT_KEYS.map(k => [k, { mins:0, visits:0, domains:[] }]));
-  Object.entries(agg).forEach(([domain, s]) => {
-    const k = getChromeCat(domain);
-    buckets[k].mins   += s.mins;
-    buckets[k].visits += s.visits;
-    buckets[k].domains.push({ domain, ...s });
-  });
-
-  const totalMins = Object.values(buckets).reduce((s, b) => s + b.mins, 0);
-
-  const totalVisits = Object.values(buckets).reduce((s, b) => s + b.visits, 0);
-
-  // ── Stacked bar (headline) — sized by VISITS, not minutes ──
-  const segs = CHROME_CAT_KEYS
-    .filter(k => buckets[k].visits > 0)
-    .sort((a, b) => buckets[b].visits - buckets[a].visits);
-
-  stackedEl.innerHTML = `
-    <div class="chrome-stacked-bar">
-      ${segs.map(k => {
-        const pct = (buckets[k].visits / totalVisits * 100);
-        const showLabel = pct >= 6;
-        return `<div class="chrome-stacked-seg" title="${CHROME_CAT_LABELS[k]}: ${buckets[k].visits} visits (${pct.toFixed(0)}%) · ${fmtMins(buckets[k].mins)}"
-                  style="width:${pct}%; background:${CHROME_CAT_COLORS[k]}">
-                  ${showLabel ? `${CHROME_CAT_LABELS[k]} ${pct.toFixed(0)}%` : ''}
-                </div>`;
-      }).join('')}
-    </div>
-    <div class="chrome-stacked-legend">
-      ${segs.map(k => {
-        const pct = (buckets[k].visits / totalVisits * 100).toFixed(0);
-        return `<span class="legend-item">
-          <span class="legend-dot" style="background:${CHROME_CAT_COLORS[k]}"></span>
-          ${CHROME_CAT_LABELS[k]}
-          <span class="css-pct">${buckets[k].visits} visits · ${pct}% <span style="color:#374151">· ${fmtMins(buckets[k].mins)}</span></span>
-        </span>`;
-      }).join('')}
-    </div>
-  `;
-
-  // ── Per-category panels (top 5 domains each, ranked by visits) ──
-  catsEl.innerHTML = segs.map(k => {
-    const b = buckets[k];
-    const top = b.domains.sort((a, c) => c.visits - a.visits).slice(0, 5);
-    const maxV = top[0]?.visits ?? 1;
-    return `
-      <div class="chrome-cat-panel">
-        <div class="ccp-head">
-          <span class="legend-dot" style="background:${CHROME_CAT_COLORS[k]}"></span>
-          <span class="ccp-name">${CHROME_CAT_LABELS[k]}</span>
-          <span class="ccp-meta">${b.visits} visits <span style="color:#374151">· ${fmtMins(b.mins)}</span></span>
-        </div>
-        <div class="chrome-rows">
-          ${top.map(d => {
-            const pct = (d.visits / maxV * 100).toFixed(1);
-            const avgPerVisit = d.visits > 0 ? d.mins / d.visits : 0;
-            const idle = avgPerVisit >= 8;
-            const idleWarn = idle ? `<span class="idle-warn" title="avg ${avgPerVisit.toFixed(1)} min/navigation — likely idle tab">⚠</span>` : '';
-            return `<div class="cr">
-              <div class="cr-domain" title="${d.domain}">${d.domain}${idleWarn}</div>
-              <div class="cr-track"><div class="cr-bar" style="width:${pct}%; background:${CHROME_CAT_COLORS[k]}"></div></div>
-              <div class="cr-meta">${d.visits} visits<br><span style="color:#374151">${fmtMins(d.mins)}</span></div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// App Detail drill-down
-// ════════════════════════════════════════════════════════════════════════════
-const detailCharts = {};
-
-function showAppDetail(appName) {
-  // Destroy any existing detail charts
-  Object.values(detailCharts).forEach(c => { try { c.destroy(); } catch(e) {} });
-
-  const panel = document.getElementById('app-detail');
-  panel.style.display = '';
-  document.getElementById('detail-title').textContent = appName;
-
-  // ── Stats ──
-  const appRows    = _usage.filter(r => r.app_name === appName);
-  const allDates   = uniqSorted(_usage.map(r => r.date));
-  const last30     = allDates.slice(-30);
-  const activeDays = uniqSorted(appRows.map(r => r.date));
-  const totalMins  = appRows.reduce((s, r) => s + +r.mins, 0);
-  const avgDaily   = activeDays.length ? totalMins / activeDays.length : 0;
-
-  const dailyMins  = {};
-  appRows.forEach(r => { dailyMins[r.date] = (dailyMins[r.date] ?? 0) + +r.mins; });
-  const peakEntry  = Object.entries(dailyMins).sort((a,b) => b[1]-a[1])[0];
-
-  const appSess    = _sessions.filter(r => r.app_name === appName && +r.session_mins > 0.1);
-  const avgSess    = appSess.length ? appSess.reduce((s, r) => s + +r.session_mins, 0) / appSess.length : 0;
-
-  document.getElementById('detail-stats').innerHTML = [
-    { val: fmtMins(totalMins),     lbl: 'Total (all time)' },
-    { val: `${avgDaily.toFixed(0)}m`, lbl: 'Avg on active days' },
-    { val: peakEntry ? fmtMins(peakEntry[1]) : '—', lbl: `Peak (${peakEntry ? dateLabel(peakEntry[0]) : '—'})` },
-    { val: `${avgSess.toFixed(1)}m`, lbl: 'Avg session length' },
-  ].map(s => `<div class="stat-chip"><div class="sc-val">${s.val}</div><div class="sc-lbl">${s.lbl}</div></div>`).join('');
-
-  // ── Daily chart ──
-  const catColor = CAT_COLORS[getCat(appName)] ?? '#6366f1';
-  detailCharts.daily = new Chart(document.getElementById('detail-daily'), {
-    type: 'bar',
-    data: {
-      labels: last30.map(dateLabel),
-      datasets: [{ label:'Minutes', data: last30.map(d => +(dailyMins[d] ?? 0).toFixed(0)),
-        backgroundColor: catColor + 'aa', borderColor: catColor, borderWidth:1, borderRadius:3 }],
-    },
-    options: {
-      ...BASE,
-      scales: {
-        x: { grid:{ display:false }, ticks:{ maxRotation:45 } },
-        y: { title:{ display:true, text:'Minutes', color:'#64748b' } },
-      },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks:{ label: ctx => `${ctx.raw} min` } } },
-    },
-  });
-
-  // ── Hourly chart ──
-  const hourTotals = new Array(24).fill(0), hourCounts = new Array(24).fill(0);
-  appSess.forEach(r => {
-    const h = +r.hour;
-    if (h >= 0 && h < 24) { hourTotals[h] += +r.session_mins; hourCounts[h]++; }
-  });
-  const hourAvg = hourTotals.map((sum, h) => hourCounts[h] ? +(sum / hourCounts[h]).toFixed(1) : 0);
-  const HLBLS   = Array.from({length:24}, (_, h) =>
-    h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`
-  );
-
-  detailCharts.hourly = new Chart(document.getElementById('detail-hourly'), {
-    type: 'bar',
-    data: {
-      labels: HLBLS,
-      datasets: [{ label:'Avg session (min)', data: hourAvg,
-        backgroundColor: catColor + 'aa', borderColor: catColor, borderWidth:1, borderRadius:2 }],
-    },
-    options: {
-      ...BASE,
-      scales: {
-        x: { grid:{ display:false } },
-        y: { title:{ display:true, text:'Avg session (min)', color:'#64748b' } },
-      },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks:{ label: ctx => `${ctx.raw} min avg` } } },
-    },
-  });
-
-  panel.scrollIntoView({ behavior:'smooth', block:'start' });
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// Event delegation for app chips / links
-// ════════════════════════════════════════════════════════════════════════════
-document.addEventListener('click', e => {
-  const el = e.target.closest('[data-app]');
-  if (el && el.dataset.app) showAppDetail(el.dataset.app);
-});
-
-document.getElementById('detail-close').addEventListener('click', () => {
-  document.getElementById('app-detail').style.display = 'none';
-  Object.values(detailCharts).forEach(c => { try { c.destroy(); } catch(e) {} });
-});
-
-// ════════════════════════════════════════════════════════════════════════════
 // iPhone view — data from scripts/import_iphone.py (screenshots) and log.py
 // ════════════════════════════════════════════════════════════════════════════
 // screentime.csv rows in this range are the original SAMPLE week (see CLAUDE.md) — not real data.
@@ -1121,7 +249,7 @@ const IP_CATS = [
 const IP_NOT_SHOWN = '#2a3045', IP_NO_CAT = '#94a3b8';
 const HOUR_LBL = h => h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`;
 const HDR = { overview:'loading…', mac:'loading…', iphone:'loading…' };
-let ipBuilt = false, ovBuilt = false;
+let ipBuilt = false, ovBuilt = false, macBuilt = false;
 
 function ipCatKey(name) {
   if (name === 'Productivity') return 'Productivity & Finance';
@@ -1137,208 +265,200 @@ function dateRange(from, to) {
 
 function hoursTick(v) { return v % 60 === 0 ? `${v / 60}h` : ''; }
 
+const ipLegend = (color, label, line) => `<span class="legend-item"><span class="legend-dot" style="background:${color};${line ? 'height:2px;width:14px;border-radius:0' : ''}"></span>${label}</span>`;
+const tabTrack = (base, target, cur, curLabel) => `<div class="ov-track"><div><div class="v">${base[0]}</div><div class="l">${base[1]}</div></div>
+  <div><div class="v">${target}</div><div class="l">target</div></div>
+  <div><div class="v">${cur}</div><div class="l">${curLabel}</div></div></div>`;
+
+// ════════════════════════════════════════════════════════════════════════════
+// iPhone tab — 3 key numbers · 1 decision (Social limit) · 3 charts
+// ════════════════════════════════════════════════════════════════════════════
+const IP_SOCIAL_LIMIT = 30;
 async function initIphone() {
   const main = document.getElementById('main-iphone');
-  let st, cats, hourly;
-  try {
-    const get = f => fetch('../data/' + f).then(r => r.ok ? r.text() : '').catch(() => '');
-    const [a, b, c] = await Promise.all([get('screentime.csv'), get('iphone_categories.csv'), get('iphone_hourly.csv')]);
-    st = a ? parseCSV(a) : []; cats = b ? parseCSV(b) : []; hourly = c ? parseCSV(c) : [];
-  } catch (e) { st = []; }
-
-  const days = st
-    .filter(r => r.date && r.total_mins !== '' && !(r.date >= IPHONE_SAMPLE.from && r.date <= IPHONE_SAMPLE.to))
-    .map(r => ({ date:r.date, total:+r.total_mins }))
-    .sort((x, y) => x.date < y.date ? -1 : 1);
+  const [st, cats, hourly] = await Promise.all(['screentime.csv', 'iphone_categories.csv', 'iphone_hourly.csv'].map(ovLoad));
+  const days = st.filter(r => r.date && r.total_mins !== '' && !(r.date >= IPHONE_SAMPLE.from && r.date <= IPHONE_SAMPLE.to))
+    .map(r => ({ date: r.date, total: +r.total_mins })).sort((x, y) => x.date < y.date ? -1 : 1);
   if (!days.length) {
-    main.innerHTML = `<div class="card full"><p class="err">No iPhone data yet.</p>
-      <p class="dim" style="margin-top:8px">Drop Screen Time screenshots into <code>mobile time tracker/</code>, then run
-      <code>python3 scripts/import_iphone.py</code></p></div>`;
+    main.innerHTML = `<div class="card full"><p class="err">No iPhone data yet.</p><p class="dim" style="margin-top:8px">Put screenshots in <code>mobile time tracker/</code> and run <code>python3 scripts/sync_all.py</code>.</p></div>`;
     HDR.iphone = 'no data'; return;
   }
   const byDate = Object.fromEntries(days.map(d => [d.date, d.total]));
   const allDates = dateRange(days[0].date, days[days.length - 1].date);
-  HDR.iphone = `${days[0].date} → ${days[days.length-1].date}  ·  ${days.length} days`;
+  HDR.iphone = `${days[0].date} → ${days[days.length - 1].date} · ${days.length} days`;
   if (!main.hidden) document.getElementById('hdr-range').textContent = HDR.iphone;
-
   const catByDate = {};
-  cats.forEach(r => { (catByDate[r.date] ||= []).push({ name:r.category, key:ipCatKey(r.category), mins:+r.mins, rank:+r.rank }); });
+  cats.forEach(r => (catByDate[r.date] ||= []).push({ name: r.category, key: ipCatKey(r.category), mins: +r.mins, rank: +r.rank }));
   const hourByDate = {};
-  hourly.filter(r => r.metric === 'screen_mins').forEach(r => {
-    (hourByDate[r.date] ||= new Array(24).fill(0))[+r.hour] = +r.value;
-  });
-  const hourDates = Object.keys(hourByDate).filter(d => byDate[d] !== undefined).sort();
+  hourly.forEach(r => { if (r.metric === 'screen_mins') (hourByDate[r.date] ||= Array(24).fill(0))[+r.hour] = +r.value; });
+  const sum = a => a.reduce((x, y) => x + y, 0);
 
-  const avg = a => a.length ? a.reduce((s, v) => s + v, 0) / a.length : NaN;
-  const statusOf = m => threshold(m);
+  // key numbers
+  const last = days[days.length - 1].date, inLast = (d, a, b) => d >= ovAdd(last, a) && d <= ovAdd(last, b);
+  const a7 = ovMean(days.filter(d => inLast(d.date, -6, 0)).map(d => d.total)), p7 = ovMean(days.filter(d => inLast(d.date, -13, -7)).map(d => d.total));
+  const dayTime = ovMean(Object.keys(hourByDate).filter(d => byDate[d] !== undefined).map(d => sum(hourByDate[d].slice(6))));
+  const social = d => (catByDate[d] || []).find(x => x.key === 'Social')?.mins;
+  const socDays = days.map(d => d.date).filter(d => social(d) !== undefined), socAvg = ovMean(socDays.map(social));
+  const sBase = socDays.filter(d => d < OV.START), sCur = socDays.filter(d => d >= OV.START), onT = ds => ds.filter(d => social(d) <= IP_SOCIAL_LIMIT).length;
 
-  // ── tiles ──
-  const last = days[days.length - 1].date;
-  const inWin = (d, from, to) => d >= from && d <= to;
-  const shift = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
-  const last7  = days.filter(d => inWin(d.date, shift(last, -6), last)).map(d => d.total);
-  const prev7  = days.filter(d => inWin(d.date, shift(last, -13), shift(last, -7))).map(d => d.total);
-  const a7 = avg(last7), p7 = avg(prev7), aAll = avg(days.map(d => d.total));
-  const under = days.filter(d => d.total < IP_GOAL).length, over = days.filter(d => d.total > IP_LIMIT).length;
-  const tile = (v, l, s, cls) => `<div class="ip-tile"><div class="v ${cls || ''}">${v}</div><div class="l">${l}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
-  const delta = isFinite(p7) ? `${a7 >= p7 ? '▲' : '▼'} ${fmtHM(Math.abs(a7 - p7))} vs prior 7 days` : '';
-  document.getElementById('ip-tiles').innerHTML = [
-    tile(fmtHM(a7), `Last 7 days · avg/day (${last7.length}d)`, `${IP_STATUS_LABEL[statusOf(a7)]} · ${delta}`, statusOf(a7)),
-    tile(isFinite(p7) ? fmtHM(p7) : '—', `Prior 7 days · avg/day`, isFinite(p7) ? IP_STATUS_LABEL[statusOf(p7)] : '', isFinite(p7) ? statusOf(p7) : ''),
-    tile(fmtHM(aAll), `All ${days.length} days · avg/day`, IP_STATUS_LABEL[statusOf(aAll)], statusOf(aAll)),
-    tile(`${under}/${days.length}`, 'Days under 2h goal', ''),
-    tile(`${over}/${days.length}`, 'Days over 4h line', ''),
-  ].join('');
+  main.innerHTML = `
+  <div class="card full">
+    <h2>iPhone · key numbers</h2>
+    <div class="ov-facts" style="margin-top:8px">
+      <div class="ov-fact"><div class="v">${fmtHM(a7)}</div><div class="l">per day, last 7 days${isFinite(p7) ? ` · ${a7 >= p7 ? '▲' : '▼'} ${fmtHM(Math.abs(a7 - p7))} vs the 7 before` : ''}</div></div>
+      <div class="ov-fact"><div class="v">${fmtHM(dayTime)}</div><div class="l">per day from 6 AM to midnight — over the 2h goal even without the nights</div></div>
+      <div class="ov-fact"><div class="v">${fmtHM(socAvg)}</div><div class="l">Social per day · in your top 3 on ${socDays.length} of ${days.length} days</div></div>
+    </div>
+  </div>
 
-  // ── daily chart ──
-  const roll = allDates.map((d, i) => {
-    const w = allDates.slice(Math.max(0, i - 6), i + 1).map(x => byDate[x]).filter(v => v !== undefined);
-    return w.length >= 4 ? Math.round(avg(w)) : null;
-  });
-  const legendItem = (color, label, line) => `<span class="legend-item"><span class="legend-dot" style="background:${color};${line ? 'height:2px;width:14px;border-radius:0' : ''}"></span>${label}</span>`;
-  const NIGHT_C = '#3987e5', REST_C = '#64748b';
-  const nightOf = d => hourByDate[d] ? Math.min(byDate[d], hourByDate[d].slice(0, 6).reduce((s, v) => s + v, 0)) : 0;
-  document.getElementById('ip-daily-legend').innerHTML =
-    legendItem(NIGHT_C, 'After midnight (12–6 AM)') + legendItem(REST_C, 'Rest of the day') +
-    legendItem('#e2e8f0', '7-day average', true) + legendItem('#94a3b8', 'Dashed: 2h goal / 4h line', true);
-  new Chart(document.getElementById('ip-daily'), {
-    type: 'bar',
+  <div class="card full ov-action">
+    <div class="ov-action-head"><div class="ov-num">→</div><h3>Social apps: a 30-minute daily limit that actually blocks</h3></div>
+    <p class="ov-why">Social averages <b>${fmtHM(socAvg)}</b> a day and stayed under 30 min on ${onT(sBase)} of ${sBase.length} days. The bedtime action won't touch daytime scrolling.</p>
+    <p class="ov-how"><b>How:</b> Settings → Screen Time → App Limits → Add Limit → Social → 30 min, Every Day → turn on <b>Block at End of Limit</b>.</p>
+    ${tabTrack([fmtHM(ovMean(sBase.map(social))), 'baseline, Social per day'], `≤ ${IP_SOCIAL_LIMIT}m`, sCur.length ? `${onT(sCur)} / ${sCur.length}` : '—', sCur.length ? 'days on target since start' : 'since start — fills in at the next sync')}
+    <div class="chart-wrap h180"><canvas id="ip-social"></canvas></div>
+  </div>
+
+  <div class="card full">
+    <h2>Every day, and how much of it was after midnight</h2>
+    <p class="sub">Exact daily totals · blue = after midnight (estimated) · line = 7-day average · dashed = 2h goal / 4h line</p>
+    <div class="legend" id="ip-daily-legend"></div>
+    <div class="chart-wrap h300"><canvas id="ip-daily"></canvas></div>
+  </div>
+
+  <div class="card full">
+    <h2>What the categories can't show</h2>
+    <p class="sub">Screenshots name only each day's top 3 categories. Light gray = minutes that can't be in any category (more than the 9 hidden ones could hold). Tap an hour bar in Screen Time to see those apps.</p>
+    <div class="legend" id="ip-cat-legend"></div>
+    <div class="chart-wrap h300"><canvas id="ip-cats"></canvas></div>
+  </div>
+
+  <div class="card full"><details><summary class="dim" style="cursor:pointer">About this data</summary>
+    <ul class="ip-notes" style="margin-top:8px">
+      <li>Daily totals and categories are exact (read from the screenshots); hourly values are estimated from the bar heights.</li>
+      <li>Not captured yet: pickups, notifications, per-app time. The April sample week is excluded.</li>
+    </ul></details></div>`;
+
+  const yMin = { beginAtZero: true, grid: { color: '#1e2235' } };
+  // decision tracker — Social per day vs the limit
+  new Chart(document.getElementById('ip-social'), { type: 'bar',
+    data: { labels: socDays.map(ovDay), datasets: [{ data: socDays.map(social), ...ovBars(OV.ACCENT) }] },
+    options: { ...BASE, scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }, y: { ...yMin, title: { display: true, text: 'Social, min' } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` Social ${c.raw} min` } } } },
+    plugins: [ovRef(IP_SOCIAL_LIMIT, `${IP_SOCIAL_LIMIT} min`), ovStartMark(socDays.findIndex(d => d >= OV.START))] });
+
+  // every day, split after midnight vs the rest
+  const roll = allDates.map((d, i) => { const w = allDates.slice(Math.max(0, i - 6), i + 1).map(x => byDate[x]).filter(v => v !== undefined); return w.length >= 4 ? Math.round(ovMean(w)) : null; });
+  const nightOf = d => hourByDate[d] ? Math.min(byDate[d], sum(hourByDate[d].slice(0, 6))) : 0;
+  document.getElementById('ip-daily-legend').innerHTML = ipLegend(OV.ACCENT, 'After midnight (12–6 AM)') + ipLegend(OV.CONTEXT, 'Rest of the day') +
+    ipLegend('#e2e8f0', '7-day average', true) + ipLegend('#94a3b8', 'Dashed: 2h goal / 4h line', true);
+  const flat = (label, v) => ({ type: 'line', label, data: allDates.map(() => v), borderColor: '#94a3b8', borderWidth: 1, borderDash: [4, 4], pointRadius: 0, order: 3, stack: label });
+  new Chart(document.getElementById('ip-daily'), { type: 'bar',
     data: { labels: allDates.map(dateLabelDow), datasets: [
-      { type:'line', label:'7-day avg', data:roll, borderColor:'#e2e8f0', borderWidth:2, pointRadius:0, pointHoverRadius:4, spanGaps:true, order:1, stack:'avg' },
-      { type:'bar', label:'After midnight', data:allDates.map(d => byDate[d] === undefined ? null : Math.round(nightOf(d))), backgroundColor:NIGHT_C, stack:'day', order:2, maxBarThickness:22 },
-      { type:'bar', label:'Rest of the day', data:allDates.map(d => byDate[d] === undefined ? null : Math.round(byDate[d] - nightOf(d))), backgroundColor:REST_C,
-        stack:'day', order:2, maxBarThickness:22, borderRadius:{ topLeft:4, topRight:4 }, borderSkipped:'bottom' },
-      { type:'line', label:'2h goal', data:allDates.map(() => IP_GOAL), borderColor:'#94a3b8', borderWidth:1, borderDash:[4,4], pointRadius:0, order:3, stack:'goal' },
-      { type:'line', label:'4h line', data:allDates.map(() => IP_LIMIT), borderColor:'#94a3b8', borderWidth:1, borderDash:[4,4], pointRadius:0, order:3, stack:'limit' },
-    ] },
-    options: { ...BASE, interaction:{ mode:'index', intersect:false },
-      scales: { x:{ stacked:true, grid:{ display:false } }, y:{ stacked:true, beginAtZero:true, ticks:{ stepSize:60, callback:hoursTick } } },
+      { type: 'line', label: '7-day avg', data: roll, borderColor: '#e2e8f0', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, spanGaps: true, order: 1, stack: 'avg' },
+      { label: 'After midnight', data: allDates.map(d => byDate[d] === undefined ? null : Math.round(nightOf(d))), backgroundColor: OV.ACCENT, stack: 'day', order: 2, maxBarThickness: 22 },
+      { label: 'Rest of the day', data: allDates.map(d => byDate[d] === undefined ? null : Math.round(byDate[d] - nightOf(d))), backgroundColor: OV.CONTEXT,
+        stack: 'day', order: 2, maxBarThickness: 22, borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: 'bottom' },
+      flat('2h goal', IP_GOAL), flat('4h line', IP_LIMIT) ] },
+    options: { ...BASE, interaction: { mode: 'index', intersect: false },
+      scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 60, callback: hoursTick } } },
       plugins: { ...BASE.plugins, tooltip: { ...TIP, filter: i => i.datasetIndex < 3 && i.raw !== null,
         callbacks: { title: it => dateLabelLong(allDates[it[0].dataIndex]),
           label: c => c.datasetIndex === 0 ? `7-day avg: ${fmtHM(c.raw)}` : `${c.dataset.label}: ${fmtHM(c.raw)}`,
-          footer: it => { const d = allDates[it[0].dataIndex]; return byDate[d] !== undefined ? `Total ${fmtHM(byDate[d])} — ${IP_STATUS_LABEL[statusOf(byDate[d])]}` : ''; } } } } },
-  });
+          footer: it => { const d = allDates[it[0].dataIndex]; return byDate[d] !== undefined ? `Total ${fmtHM(byDate[d])} — ${IP_STATUS_LABEL[threshold(byDate[d])]}` : ''; } } } } } });
 
-  // ── weekly ──
-  const monday = d => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x.toISOString().slice(0, 10); };
-  const weeks = {};
-  days.forEach(d => (weeks[monday(d.date)] ||= []).push(d.total));
-  const wk = Object.keys(weeks).sort().map(k => ({ k, n:weeks[k].length, avg:avg(weeks[k]), sum:weeks[k].reduce((s, v) => s + v, 0) }));
-  new Chart(document.getElementById('ip-weekly'), {
-    type:'bar',
-    data: { labels: wk.map(w => `${dateLabel(w.k)}${w.n < 7 ? ` (${w.n}d)` : ''}`),
-            datasets: [{ data: wk.map(w => Math.round(w.avg)), backgroundColor: wk.map(w => IP_STATUS[statusOf(w.avg)]), borderRadius:{ topLeft:4, topRight:4 }, borderSkipped:'bottom', maxBarThickness:28 }] },
-    options: { ...BASE, scales: { x:{ grid:{ display:false } }, y:{ beginAtZero:true, ticks:{ stepSize:60, callback:hoursTick } } },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: {
-        title: it => `Week of ${dateLabel(wk[it[0].dataIndex].k)}`,
-        label: c => { const w = wk[c.dataIndex]; return [`Avg/day: ${fmtHM(w.avg)} — ${IP_STATUS_LABEL[statusOf(w.avg)]}`, `Total: ${fmtHM(w.sum)} over ${w.n} day${w.n > 1 ? 's' : ''}`]; } } } } },
-  });
-
-  // ── weekdays vs weekends by part of day (after-midnight hours count toward the morning date) ──
-  const PODS = [['After midnight', 0, 6], ['Morning', 6, 12], ['Afternoon', 12, 18], ['Evening', 18, 24]];
-  const isWkday = d => { const w = new Date(d + 'T12:00:00').getDay(); return w >= 1 && w <= 5; };
-  const podAvg = sel => { const ds = hourDates.filter(sel); return PODS.map(([, a, b]) => ds.length ? Math.round(avg(ds.map(d => hourByDate[d].slice(a, b).reduce((s, v) => s + v, 0)))) : null); };
-  const podW = podAvg(isWkday), podE = podAvg(d => !isWkday(d)), nW = hourDates.filter(isWkday).length;
-  document.getElementById('ip-pod-legend').innerHTML = legendItem('#3987e5', `Mon–Fri (${nW} days)`) + legendItem('#64748b', `Sat–Sun (${hourDates.length - nW} days)`);
-  const podBar = (label, data, color) => ({ label, data, backgroundColor:color, borderRadius:{ topLeft:4, topRight:4 }, borderSkipped:'bottom', maxBarThickness:24 });
-  new Chart(document.getElementById('ip-pod'), { type:'bar',
-    data: { labels: PODS.map(x => x[0]), datasets: [podBar('Mon–Fri', podW, '#3987e5'), podBar('Sat–Sun', podE, '#64748b')] },
-    options: { ...BASE, interaction:{ mode:'index', intersect:false }, scales: { x:{ grid:{ display:false } }, y:{ beginAtZero:true, title:{ display:true, text:'min / day', color:'#64748b' } } },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => `${c.dataset.label}: ${c.raw} min` } } } } });
-
-  // ── categories (stacked, top 3 shown per day + remainder) ──
-  const catDates = allDates;
-  const catSets = IP_CATS.map(c => ({
-    label:c.key, backgroundColor:c.color, borderColor:'#1a1d2e', borderWidth:1, borderSkipped:false, maxBarThickness:22,
-    data: catDates.map(d => { const list = catByDate[d]; if (!list) return null;
-      const v = list.filter(x => x.key === c.key).reduce((s, x) => s + x.mins, 0); return v || null; }),
-  }));
-  // gray = minutes outside the top 3; at least (gray − 9 × the #3 category) can't belong to any of the 9 hidden categories
-  const hiddenOf = d => byDate[d] === undefined ? null : Math.max(0, byDate[d] - (catByDate[d] || []).reduce((s, x) => s + x.mins, 0));
+  // categories + the "in no category" floor (gray − 9 × the #3 category)
+  const seg = { borderColor: '#1a1d2e', borderWidth: 1, borderSkipped: false, maxBarThickness: 22 };
+  const hiddenOf = d => byDate[d] === undefined ? null : Math.max(0, byDate[d] - sum((catByDate[d] || []).map(x => x.mins)));
   const noCatOf = d => { const h = hiddenOf(d), t = (catByDate[d] || []).find(x => x.rank === 3)?.mins; return h === null || t === undefined ? 0 : Math.max(0, h - 9 * t); };
-  const segStyle = { borderColor:'#1a1d2e', borderWidth:1, borderSkipped:false, maxBarThickness:22 };
-  catSets.push({ label:'Not shown: other categories or none', backgroundColor:IP_NOT_SHOWN, ...segStyle,
-    data: catDates.map(d => { const h = hiddenOf(d); return h === null ? null : h - noCatOf(d); }) });
-  catSets.push({ label:'In no category (at least)', backgroundColor:IP_NO_CAT, ...segStyle, data: catDates.map(d => noCatOf(d) || null) });
-  document.getElementById('ip-cat-legend').innerHTML =
-    IP_CATS.map(c => legendItem(c.color, c.key)).join('') + legendItem(IP_NOT_SHOWN, 'Not shown: other categories or none') + legendItem(IP_NO_CAT, 'In no category (at least)');
-  new Chart(document.getElementById('ip-cats'), {
-    type:'bar',
-    data: { labels: catDates.map(dateLabelDow), datasets: catSets },
-    options: { ...BASE, interaction:{ mode:'index', intersect:false },
-      scales: { x:{ stacked:true, grid:{ display:false } }, y:{ stacked:true, beginAtZero:true, ticks:{ stepSize:60, callback:hoursTick } } },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, filter: i => i.raw !== null,
-        callbacks: { title: it => dateLabelLong(catDates[it[0].dataIndex]),
-          label: c => { const names = c.dataset.label === 'Other categories'
-              ? ' (' + (catByDate[catDates[c.dataIndex]] || []).filter(x => x.key === 'Other categories').map(x => x.name).join(', ') + ')' : '';
-            return `${c.dataset.label}${names}: ${fmtHM(c.raw)}`; } } } } },
-  });
-  const catStats = {};
-  Object.values(catByDate).flat().forEach(x => {
-    const s = (catStats[x.name] ||= { days:0, first:0, total:0, key:x.key });
-    s.days++; s.total += x.mins; if (x.rank === 1) s.first++;
-  });
-  const nCatDays = Object.keys(catByDate).length;
-  document.getElementById('ip-cat-table').innerHTML =
-    `<tr><th>Category</th><th>Days in top 3</th><th>Days at #1</th><th>Avg when shown</th><th>Total shown</th></tr>` +
-    Object.entries(catStats).sort((a, b) => b[1].total - a[1].total).map(([n, s]) => {
-      const col = (IP_CATS.find(c => c.key === s.key) || {}).color;
-      return `<tr><td><span class="legend-dot" style="display:inline-block;margin-right:6px;background:${col}"></span>${n}</td>
-        <td>${s.days}/${nCatDays}</td><td>${s.first}</td><td>${fmtHM(s.total / s.days)}</td><td>${fmtHM(s.total)}</td></tr>`;
-    }).join('');
+  const catSets = IP_CATS.map(c => ({ label: c.key, backgroundColor: c.color, ...seg,
+    data: allDates.map(d => { const v = sum((catByDate[d] || []).filter(x => x.key === c.key).map(x => x.mins)); return v || null; }) }));
+  catSets.push({ label: 'Not shown: other categories or none', backgroundColor: IP_NOT_SHOWN, ...seg, data: allDates.map(d => { const h = hiddenOf(d); return h === null ? null : h - noCatOf(d); }) });
+  catSets.push({ label: 'In no category (at least)', backgroundColor: IP_NO_CAT, ...seg, data: allDates.map(d => noCatOf(d) || null) });
+  document.getElementById('ip-cat-legend').innerHTML = IP_CATS.map(c => ipLegend(c.color, c.key)).join('') +
+    ipLegend(IP_NOT_SHOWN, 'Not shown: other categories or none') + ipLegend(IP_NO_CAT, 'In no category (at least)');
+  new Chart(document.getElementById('ip-cats'), { type: 'bar', data: { labels: allDates.map(dateLabelDow), datasets: catSets },
+    options: { ...BASE, interaction: { mode: 'index', intersect: false },
+      scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 60, callback: hoursTick } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, filter: i => i.raw !== null, callbacks: { title: it => dateLabelLong(allDates[it[0].dataIndex]),
+        label: c => `${c.dataset.label}: ${fmtHM(c.raw)}` } } } } });
+}
 
-  // ── time of day, 6 AM → 6 AM (estimated) ──
-  const HOURS6 = [...Array(24).keys()].map(i => (i + 6) % 24);
-  const hourAvg = Array.from({length:24}, (_, h) => hourDates.length ? avg(hourDates.map(d => hourByDate[d][h])) : 0);
-  const hourBars = vals => ({ data: vals, backgroundColor: HOURS6.map(h => h < 6 ? '#3987e5' : '#64748b'), borderRadius:{ topLeft:4, topRight:4 }, borderSkipped:'bottom', maxBarThickness:20 });
-  const hourTitle = it => `${HOUR_LBL(HOURS6[it[0].dataIndex])}–${HOUR_LBL((HOURS6[it[0].dataIndex] + 1) % 24)}`;
-  new Chart(document.getElementById('ip-hourly'), { type:'bar',
-    data: { labels: HOURS6.map(HOUR_LBL), datasets: [hourBars(HOURS6.map(h => +hourAvg[h].toFixed(1)))] },
-    options: { ...BASE, scales: { x:{ grid:{ display:false } }, y:{ beginAtZero:true, title:{ display:true, text:'min / hour (est.)', color:'#64748b' } } },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { title: hourTitle, label: c => `≈ ${Math.round(c.raw)} min on an average day` } } } } });
+// ════════════════════════════════════════════════════════════════════════════
+// Mac tab — focus: 3 key numbers · 1 decision (first timer early) · 3 charts
+// A "focus stretch" = Build apps back-to-back (detours ≤ 3 min) lasting ≥ 25 min, exact times
+// ════════════════════════════════════════════════════════════════════════════
+const MAC_STRETCH = 25, MAC_FIRST_TARGET = 60;   // decision: first focus stretch within 60 min of opening the Mac
+async function initMac() {
+  const main = document.getElementById('main');
+  const { macApp } = await loadEvents();
+  if (!macApp.length) { main.innerHTML = `<div class="card full"><p class="err">No Mac event data yet.</p><p class="dim" style="margin-top:8px">Run <code>python3 scripts/sync_all.py</code>.</p></div>`; HDR.mac = 'no data'; return; }
+  const todayL = ovLocal(Date.now() / 60000).date;
+  const long = workBlocks(macApp).blocks.filter(b => b.len >= MAC_STRETCH);
+  const first = {}; macApp.forEach(iv => { if (!(iv.date in first) || iv.s < first[iv.date]) first[iv.date] = iv.s; });
+  const days = Object.keys(first).sort().filter(d => d < todayL);
+  const stat = {};
+  days.forEach(d => { const L = long.filter(b => b.date === d);
+    stat[d] = { foc: L.reduce((a, b) => a + b.len, 0), n: L.length, delay: L.length ? Math.min(...L.map(b => b.s)) - first[d] : null }; });
+  const wk = days.filter(ovWorkMorning), base = wk.filter(d => d < OV.START), cur = wk.filter(d => d >= OV.START);
+  const win = cur.length >= 5 ? cur : base;
+  HDR.mac = `${cur.length >= 5 ? 'since ' + ovDay(OV.START) : 'baseline'} · ${win.length} weekdays · exact times`;
+  if (!main.hidden) document.getElementById('hdr-range').textContent = HDR.mac;
+  const delays = ds => ds.map(d => stat[d].delay).filter(x => x != null);
+  const hit = ds => ds.filter(d => stat[d].delay != null && stat[d].delay <= MAC_FIRST_TARGET).length;
+  const early = base.filter(d => stat[d].delay != null && stat[d].delay <= 120), late = base.filter(d => stat[d].delay != null && stat[d].delay > 120);
 
-  // ── messages sent per phone-hour (iPhone events synced to the Mac) ──
-  loadEvents().then(({ intents }) => {
-    const msg = Array(24).fill(0), phm = Array(24).fill(0), dset = new Set(hourDates);
-    hourDates.forEach(d => hourByDate[d].forEach((m, h) => phm[h] += m));
-    intents.forEach(iv => { if (iv.kind === 'Messages' && iv.dir === 'out') { const L = ovLocal(iv.s); if (dset.has(L.date)) msg[L.hour]++; } });
-    new Chart(document.getElementById('ip-msg'), { type:'bar',
-      data: { labels: HOURS6.map(HOUR_LBL), datasets: [hourBars(HOURS6.map(h => phm[h] >= 30 ? +(60 * msg[h] / phm[h]).toFixed(1) : null))] },
-      options: { ...BASE, scales: { x:{ grid:{ display:false } }, y:{ beginAtZero:true, title:{ display:true, text:'sent per 60 phone-min', color:'#64748b' } } },
-        plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { title: hourTitle, label: c => `${c.raw} messages sent per phone-hour` } } } } });
-  });
+  main.innerHTML = `
+  <div class="card full">
+    <h2>Mac focus · key numbers</h2>
+    <div class="ov-facts" style="margin-top:8px">
+      <div class="ov-fact"><div class="v">${fmtHM(ovMean(win.map(d => stat[d].foc)))}</div><div class="l">focused per weekday (stretches of ${MAC_STRETCH}+ min)</div></div>
+      <div class="ov-fact"><div class="v">${ovMean(win.map(d => stat[d].n)).toFixed(1)}</div><div class="l">focus stretches per weekday</div></div>
+      <div class="ov-fact"><div class="v">${(ovMedian(delays(win)) / 60).toFixed(1)} h</div><div class="l">from opening the Mac to the first stretch (median)</div></div>
+    </div>
+  </div>
 
-  // ── insights ──
-  const ins = [];
-  if (hourDates.length) {
-    const peak = hourAvg.indexOf(Math.max(...hourAvg));
-    ins.push({ tag:'Peak hour', text:`Your heaviest hour is <strong>${HOUR_LBL(peak)}–${HOUR_LBL((peak + 1) % 24)}</strong> — about <strong>${Math.round(hourAvg[peak])} min</strong> on an average day.` });
-    const late = hourDates.map(d => hourByDate[d].slice(0, 5).reduce((s, v) => s + v, 0));
-    const lateDays = late.filter(v => v >= 15).length;
-    ins.push({ tag:'Late night', text:`Between <strong>12am and 5am</strong> you average <strong>${fmtHM(avg(late))}</strong>; ${lateDays} of ${hourDates.length} nights had 15+ min after midnight.` });
-  }
-  const best = days.reduce((a, b) => b.total < a.total ? b : a), worst = days.reduce((a, b) => b.total > a.total ? b : a);
-  ins.push({ tag:'Range', text:`Lightest day <strong>${dateLabelLong(best.date)}</strong> (${fmtHM(best.total)}); heaviest <strong>${dateLabelLong(worst.date)}</strong> (${fmtHM(worst.total)}).` });
-  const isWe = d => [0, 6].includes(new Date(d + 'T12:00:00').getDay());
-  const we = avg(days.filter(d => isWe(d.date)).map(d => d.total)), wd = avg(days.filter(d => !isWe(d.date)).map(d => d.total));
-  if (isFinite(we) && isFinite(wd)) {
-    const night = sel => avg(hourDates.filter(sel).map(d => hourByDate[d].slice(0, 6).reduce((s, v) => s + v, 0)));
-    ins.push({ tag:'Weekend', text:`Weekdays and weekends total about the same (<strong>${fmtHM(wd)}</strong> vs <strong>${fmtHM(we)}</strong>), but weekday mornings carry <strong>${fmtHM(night(isWkday))}</strong> from after midnight vs <strong>${fmtHM(night(d => !isWkday(d)))}</strong> on weekends.` });
-  }
-  const entFirst = Object.values(catByDate).filter(l => l.some(x => x.rank === 1 && x.key === 'Entertainment')).length;
-  if (nCatDays) ins.push({ tag:'Category', text:`Entertainment was your #1 category on <strong>${entFirst} of ${nCatDays}</strong> days; Social on <strong>${Object.values(catByDate).filter(l => l.some(x => x.rank === 1 && x.key === 'Social')).length}</strong>.` });
-  document.getElementById('ip-insights').innerHTML = ins.map(i => `<div class="wp-insight"><span class="wp-insight-tag">${i.tag}</span><span>${i.text}</span></div>`).join('');
+  <div class="card full ov-action">
+    <div class="ov-action-head"><div class="ov-num">→</div><h3>Start a timer within an hour of opening the Mac</h3></div>
+    <p class="ov-why">Your first focus stretch usually starts <b>${(ovMedian(delays(base)) / 60).toFixed(1)} h</b> after you open the Mac.
+      ${early.length >= 3 && late.length >= 3 ? `Days it started within 2 h held <b>${fmtHM(ovMean(early.map(d => stat[d].foc)))}</b> of focus, vs ${fmtHM(ovMean(late.map(d => stat[d].foc)))} on later days.` : ''}</p>
+    <p class="ov-how"><b>How:</b> open the Mac → start a 50-min timer → one task. Works with action 2 on the Overview.</p>
+    ${tabTrack([`${hit(base)} / ${base.length}`, 'baseline, weekdays started within 1 h'], '≥ 60%', cur.length ? `${Math.round(100 * hit(cur) / cur.length)}%` : '—', cur.length ? `of ${cur.length} weekdays since start` : 'since start — fills in at the next sync')}
+    <div class="legend" style="margin:4px 0 0">${ipLegend(OV.ACCENT, 'hours to the first focus stretch')}${ipLegend(OV.CONTEXT, 'no focus stretch that day')}</div>
+    <div class="chart-wrap h180"><canvas id="mac-first"></canvas></div>
+  </div>
 
-  // ── notes ──
-  const gaps = hourDates.map(d => Math.abs(hourByDate[d].reduce((s, v) => s + v, 0) - byDate[d]));
-  const missing = allDates.filter(d => byDate[d] === undefined);
-  document.getElementById('ip-notes').innerHTML = [
-    `<strong>Source:</strong> iPhone Screen Time screenshots → <code>python3 scripts/import_iphone.py</code>. Daily totals and categories are read exactly from the screenshot text.`,
-    `<strong>Hourly values are estimates</strong> measured from the bar heights. Check: on these ${hourDates.length} days the hourly bars add up to within ${gaps.length ? Math.round(Math.max(...gaps)) : 0} min of the exact daily total (median ${gaps.length ? Math.round(gaps.sort((a, b) => a - b)[Math.floor(gaps.length / 2)]) : 0} min).`,
-    `<strong>Categories:</strong> the Day view only lists the top 3, so "Not shown" is everything else. <strong>Travel</strong> likely includes Maps, which CLAUDE.md excludes from analysis — the screenshots can't separate it.`,
-    `<strong>Not captured yet:</strong> pickups, notifications, per-app time. The sample week ${IPHONE_SAMPLE.from} → ${IPHONE_SAMPLE.to} in screentime.csv is excluded.`,
-    missing.length ? `<strong>Missing days:</strong> ${missing.length} (${missing.slice(0, 6).map(dateLabel).join(', ')}${missing.length > 6 ? '…' : ''})` : `<strong>Missing days:</strong> none in this range.`,
-  ].map(t => `<li>${t}</li>`).join('');
+  <div class="card">
+    <h2>Focused time per day</h2>
+    <p class="sub">Minutes in stretches of ${MAC_STRETCH}+ min (code, notes, papers; detours ≤ ${OV.FOCUS_GAP} min) · blue = weekday</p>
+    <div class="chart-wrap h240"><canvas id="mac-focus"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2>When your focus stretches start</h2>
+    <p class="sub">Number of ${MAC_STRETCH}+ min stretches by starting hour, 6 AM → 6 AM, all days</p>
+    <div class="chart-wrap h240"><canvas id="mac-when"></canvas></div>
+  </div>`;
+
+  const xT = { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }, yMin = { beginAtZero: true, grid: { color: '#1e2235' } };
+  const noneH = Math.ceil(Math.max(1, ...delays(wk)) / 60);   // weekdays with no stretch: full-height gray bar
+  new Chart(document.getElementById('mac-first'), { type: 'bar',
+    data: { labels: wk.map(ovDay), datasets: [{ data: wk.map(d => stat[d].delay == null ? noneH : +(stat[d].delay / 60).toFixed(1)),
+      ...ovBars(wk.map(d => stat[d].delay == null ? OV.CONTEXT : OV.ACCENT)) }] },
+    options: { ...BASE, scales: { x: xT, y: { ...yMin, title: { display: true, text: 'hours to first stretch' } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => stat[wk[c.dataIndex]].delay == null ? ' no focus stretch that day' : ` first stretch ${c.raw} h after opening the Mac` } } } },
+    plugins: [ovRef(MAC_FIRST_TARGET / 60, '1 h'), ovStartMark(wk.findIndex(d => d >= OV.START))] });
+  const last30 = days.slice(-30);
+  new Chart(document.getElementById('mac-focus'), { type: 'bar',
+    data: { labels: last30.map(ovDay), datasets: [{ data: last30.map(d => Math.round(stat[d].foc)), ...ovBars(last30.map(d => ovWorkMorning(d) ? OV.ACCENT : OV.CONTEXT)) }] },
+    options: { ...BASE, scales: { x: xT, y: { ...yMin, title: { display: true, text: 'min' } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` ${fmtHM(c.raw)} focused · ${stat[last30[c.dataIndex]].n} stretch(es)` } } } } });
+  const H6 = [...Array(24).keys()].map(i => (i + 6) % 24), cnt = Array(24).fill(0);
+  long.forEach(b => { if (b.date < todayL) cnt[ovLocal(b.s).hour]++; });
+  new Chart(document.getElementById('mac-when'), { type: 'bar',
+    data: { labels: H6.map(HOUR_LBL), datasets: [{ data: H6.map(h => cnt[h]), ...ovBars(OV.ACCENT) }] },
+    options: { ...BASE, scales: { x: { grid: { display: false } }, y: { ...yMin, ticks: { precision: 0 }, title: { display: true, text: 'stretches' } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` ${c.raw} stretch(es) started ${c.label}–${HOUR_LBL((H6[c.dataIndex] + 1) % 24)}` } } } } });
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1396,60 +516,6 @@ const ovStartMark = idx => ({ id:'ovStart', afterDatasetsDraw(c) {
   ctx.fillText('started', px + 4, a.top + 10); ctx.restore(); } });
 const ovBars = (color) => ({ backgroundColor: color, borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: 'bottom', maxBarThickness: 18 });
 const ovTable = (head, rows) => `<details class="ov-nums"><summary>Show numbers</summary><table><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr>${rows.map(r => `<tr>${r.map(v => `<td>${v}</td>`).join('')}</tr>`).join('')}</table></details>`;
-
-// Mac MAIN 2 — day envelope: first → last foreground activity per day (6 AM → 6 AM), exact times
-function buildEnvelope(macApp) {
-  const days = {};
-  macApp.forEach(iv => { const L = ovLocal(iv.s), d = L.hour < 6 ? ovAdd(L.date, -1) : L.date, base = ovAt(d, 0);
-    const o = days[d] ||= { s: 99, e: 0 }; o.s = Math.min(o.s, (iv.s - base) / 60); o.e = Math.min(30, Math.max(o.e, (iv.e - base) / 60)); });
-  const ds = Object.keys(days).sort().slice(0, -1).slice(-30);   // the newest day's night isn't synced yet
-  const late = 24.5;
-  new Chart(document.getElementById('c-envelope'), { type: 'bar',
-    data: { labels: ds.map(ovDay), datasets: [{ data: ds.map(d => [+days[d].s.toFixed(2), +days[d].e.toFixed(2)]),
-      backgroundColor: ds.map(d => days[d].e > late ? OV.ACCENT : OV.CONTEXT), borderRadius: 4, borderSkipped: false, maxBarThickness: 16 }] },
-    options: { ...BASE, scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
-      y: { reverse: true, min: 6, max: 30, grid: { color: '#1e2235' }, ticks: { stepSize: 3, callback: v => HOUR_LBL(v % 24) } } },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => { const [a, b] = c.raw; return ` ${fmtHour(a)} → ${fmtHour(b)} · ${(b - a).toFixed(1)} h`; } } } } },
-    plugins: [ovRef(late, '12:30 AM')] });
-}
-
-// Mac — work time by stretch length, per week (minutes/day; brighter = longer stretches)
-function buildLadder(macApp) {
-  const { blocks } = workBlocks(macApp);
-  const CLS = [[0, 5, 'under 5 min', '#2b4a73'], [5, 25, '5–25 min', '#2f6bb3'], [25, 50, '25–50 min', '#3987e5'], [50, 1e9, '50+ min', '#9cc9ff']];
-  const monday = d => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x.toISOString().slice(0, 10); };
-  const wk = {}, days = {};
-  macApp.forEach(iv => (days[monday(iv.date)] ||= new Set()).add(iv.date));
-  blocks.forEach(b => { (wk[monday(b.date)] ||= [0, 0, 0, 0])[CLS.findIndex(([a, z]) => b.len >= a && b.len < z)] += b.len; });
-  const weeks = Object.keys(wk).sort().filter(w => days[w].size >= 3);   // a 1–2-day week would mislead
-  document.getElementById('ladder-legend').innerHTML = CLS.map(c => `<span class="legend-item"><span class="legend-dot" style="background:${c[3]}"></span>${c[2]}</span>`).join('');
-  new Chart(document.getElementById('c-ladder'), { type: 'bar',
-    data: { labels: weeks.map(w => `wk of ${dateLabel(w)}${days[w].size < 7 ? ` (${days[w].size}d)` : ''}`),
-      datasets: CLS.map((c, k) => ({ label: c[2], data: weeks.map(w => Math.round(wk[w][k] / days[w].size)), backgroundColor: c[3],
-        borderColor: '#1a1d2e', borderWidth: 1, borderSkipped: false, maxBarThickness: 40 })) },
-    options: { ...BASE, interaction: { mode: 'index', intersect: false },
-      scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, title: { display: true, text: 'min / day' } } },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` ${c.dataset.label}: ${c.raw} min/day` } } } } });
-}
-
-// Mac — month by month: deep work vs leisure, avg minutes/day (Chrome time split by site)
-function buildMonths(usage, chromeShares) {
-  const agg = {};
-  usage.forEach(r => { if (r.app_name === 'Maps') return; const o = agg[r.date.slice(0, 7)] ||= { days: new Set(), deep: 0, ent: 0 };
-    o.days.add(r.date); const c = rowCatMins(r, chromeShares); o.deep += c.deep_work || 0; o.ent += c.entertainment || 0; });
-  const ms = Object.keys(agg).sort(); if (!ms.length) return;
-  const all = []; for (let d = new Date(ms[0] + '-15T12:00:00'); d <= new Date(ms[ms.length - 1] + '-15T12:00:00'); d.setMonth(d.getMonth() + 1)) all.push(d.toISOString().slice(0, 7));
-  const val = (m, k) => agg[m] && agg[m].days.size >= 7 ? Math.round(agg[m][k] / agg[m].days.size) : null;
-  const line = (label, k, color) => ({ label, data: all.map(m => val(m, k)), borderColor: color, backgroundColor: color, borderWidth: 2, spanGaps: false,
-    pointRadius: 4, pointHoverRadius: 6, pointBorderColor: '#1a1d2e', pointBorderWidth: 2, tension: 0.2 });
-  document.getElementById('months-legend').innerHTML = [['Deep work', CAT_COLORS.deep_work], ['Leisure (YouTube, Netflix, Reddit…, media apps)', CAT_COLORS.entertainment]]
-    .map(([l, c]) => `<span class="legend-item"><span class="legend-dot" style="background:${c};height:2px;width:14px;border-radius:0"></span>${l}</span>`).join('');
-  new Chart(document.getElementById('c-months'), { type: 'line',
-    data: { labels: all.map(m => new Date(m + '-15T12:00:00').toLocaleDateString('en-US', { month: 'short' })),
-      datasets: [line('Deep work', 'deep', CAT_COLORS.deep_work), line('Leisure', 'ent', CAT_COLORS.entertainment)] },
-    options: { ...BASE, interaction: { mode: 'index', intersect: false }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, title: { display: true, text: 'min / day' } } },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => c.raw === null ? ` ${c.dataset.label}: no data` : ` ${c.dataset.label}: ${c.raw} min/day` } } } } });
-}
 
 // Shared: exact-time events, parsed once (Overview, Mac and iPhone tabs)
 let _events = null;
@@ -1519,15 +585,9 @@ async function initOverview() {
     (macHour[L.date] ||= Array(24).fill(0))[L.hour] += nx - t; t = nx; } });
 
   const { focus, blocks } = workBlocks(macApp);
-  // what ended each work stretch of ≥ 5 min: the next app (or nothing = stepped away)
-  const CHAT = new Set(['net.whatsapp.WhatsApp','com.apple.MobileSMS','com.hnc.Discord','com.tinyspeck.slackmacgap','ru.keepcoder.Telegram','com.apple.mail','com.microsoft.teams2']);
-  const ends = { browser: 0, chat: 0, away: 0, other: 0 };
-  blocks.filter(x => x.len >= 5).forEach(x => { const nx = macApp[x.last + 1];
-    ends[!nx || nx.s - x.e > 2 ? 'away' : nx.app === 'com.google.Chrome' ? 'browser' : CHAT.has(nx.app) ? 'chat' : 'other']++; });
-  const nEnds = Object.values(ends).reduce((a, b) => a + b, 0) || 1;
-  const reach = (h0, h1) => { const bs = blocks.filter(x => { const h = ovLocal(x.s).hour; return h >= h0 && h < h1 && x.len >= 5; });
-    return bs.length >= 15 ? 100 * bs.filter(x => x.len >= 25).length / bs.length : NaN; };
-  const eveReach = reach(17, 24), dayReach = reach(6, 17);
+  // does a timer help? longest work stretch starting within 15 min after an iPhone timer vs the typical stretch
+  const timerRuns = intents.filter(iv => iv.kind === 'Timers').map(t => Math.max(0, ...blocks.filter(b => b.s >= t.s - 2 && b.s <= t.s + 15).map(b => b.len))).filter(x => x > 0);
+  const typical = ovMedian(blocks.filter(b => b.len >= 5).map(b => b.len));
   const focusDays = macDates.filter(d => d < today && ovWorkMorning(d) && macHour[d]);   // weekdays with Mac data
   const fBase = focusDays.filter(d => d < OV.START), fCur = focusDays.filter(d => d >= OV.START);
   const fShare = ds => ds.length ? 100 * ds.filter(d => (focus[d]?.longest || 0) >= OV.FOCUS_MIN).length / ds.length : NaN;
@@ -1557,29 +617,12 @@ async function initOverview() {
   const nights = nightsIn(win).map(M => ({ M, work: ovWorkMorning(M), d: dark(M) })).filter(n => n.d);
   const darkWork = ovMedian(nights.filter(n => n.work).map(n => n.d.hours)), darkWknd = ovMedian(nights.filter(n => !n.work).map(n => n.d.hours));
 
-  // ── phone in Mac gaps vs Mac-busy hours (same day, inside the Mac workday)
-  const gapPairs = [];
-  win.forEach(d => { const m = macHour[d], p = ph[d]; if (!m || !p) return;
-    const hs = [...Array(18).keys()].map(i => i + 6), on = hs.filter(h => m[h] >= 5); if (on.length < 2) return;
-    const span = hs.filter(h => h >= on[0] && h <= on[on.length - 1]);
-    const busy = span.filter(h => m[h] >= 30), gap = span.filter(h => m[h] < 5);
-    if (busy.length && gap.length) gapPairs.push([ovMean(gap.map(h => p[h])), ovMean(busy.map(h => p[h]))]); });
-  const inGap = ovMean(gapPairs.map(x => x[0])), inBusy = ovMean(gapPairs.map(x => x[1]));
-
   // ── messages per phone-minute: after midnight vs daytime
   const msgH = Array(24).fill(0), phH = Array(24).fill(0);
   win.forEach(d => ph[d]?.forEach((m, h) => phH[h] += m));
   intents.forEach(iv => { if (iv.kind !== 'Messages' || iv.dir !== 'out') return; const L = ovLocal(iv.s); if (winSet.has(L.date) && ph[L.date]) msgH[L.hour]++; });
   const rate = (a, b) => msgH.slice(a, b).reduce((x, y) => x + y, 0) / Math.max(1, phH.slice(a, b).reduce((x, y) => x + y, 0));
   const msgRatio = rate(9, 22) / Math.max(1e-9, rate(0, OV.NIGHT_END));
-
-  // ── iPhone minutes outside the day's top-3 categories
-  const top3 = {}; cats.forEach(r => top3[r.date] = (top3[r.date] || 0) + (+r.mins));
-  const catDays = win.filter(d => top3[d] != null);
-  const hiddenShare = 100 * (1 - catDays.reduce((a, d) => a + top3[d], 0) / Math.max(1, catDays.reduce((a, d) => a + phoneDay[d], 0)));
-  const third = {}; cats.forEach(r => { if (+r.rank === 3) third[r.date] = +r.mins; });
-  const noCat = catDays.filter(d => third[d] != null).reduce((a, d) => a + Math.max(0, phoneDay[d] - top3[d] - 9 * third[d]), 0);
-  const noCatShare = 100 * noCat / Math.max(1, catDays.reduce((a, d) => a + phoneDay[d], 0));
 
   // ── YouTube on the Mac (Chrome), peak month vs latest month
   const yt = {}, cd = {};
@@ -1640,11 +683,10 @@ async function initOverview() {
 
   <div class="card ov-action">
     <div class="ov-action-head"><div class="ov-num">2</div>
-      <h3>Weekdays: one 50-minute focus block, browsing batched, phone in another room</h3></div>
-    <p class="ov-why">Only <b>${Math.round(fShare(fBase))}%</b> of weekdays had a 50-minute stretch of coding/writing (longest block, median ${Math.round(ovMedian(fBase.map(d => focus[d]?.longest || 0)))} min).
-      Chrome ends <b>${Math.round(100 * ends.browser / nEnds)}%</b> of your work stretches (chat only ${Math.round(100 * ends.chat / nEnds)}%), and in the Mac's idle gaps you pick up the phone (${Math.round(inGap)} vs ${Math.round(inBusy)} min/hour).</p>
-    <p class="ov-how"><b>How:</b> keep a "look up later" note and open Chrome only for the task — a lookup past 10 min ends the block; phone in another room, WhatsApp quit.
-      ${eveReach > 1.5 * dayReach ? `Start it after 5 PM: stretches started then reach 25 min ${Math.round(eveReach)}% of the time vs ${Math.round(dayReach)}% earlier — and stop by 10 PM so it doesn't feed the night. ` : ''}Counts: VS Code, Obsidian, Terminal, papers, AI coding apps; detours under ${OV.FOCUS_GAP} min don't break it.</p>
+      <h3>Weekdays: one 50-minute timed block, phone in another room</h3></div>
+    <p class="ov-why">Only <b>${Math.round(fShare(fBase))}%</b> of weekdays had a 50-minute stretch of focused work (longest, median ${Math.round(ovMedian(fBase.map(d => focus[d]?.longest || 0)))} min).
+      ${timerRuns.length >= 5 ? `Your timer instinct shows in the data: after an iPhone timer, stretches ran a median <b>${Math.round(ovMedian(timerRuns))} min</b> vs ${Math.round(typical)} otherwise (${timerRuns.length} times).` : ''}</p>
+    <p class="ov-how"><b>How:</b> start a 50-min timer, one task, phone in another room. Jot look-ups and do them after; detours under ${OV.FOCUS_GAP} min don't break it.</p>
     <div class="ov-track">
       <div><div class="v">${Math.round(fShare(fBase))}%</div><div class="l">baseline, weekdays with one</div></div>
       <div><div class="v">≥ ${OV.FOCUS_TARGET}%</div><div class="l">target</div></div>
@@ -1675,18 +717,6 @@ async function initOverview() {
     <div id="ov-dark-tbl"></div>
   </div>
 
-  <div class="card">
-    <h2>What ends a work stretch</h2>
-    <p class="sub">Mac work stretches of 5+ min · where you went when it ended</p>
-    <div class="chart-wrap h200"><canvas id="ov-ends"></canvas></div>
-  </div>
-
-  <div class="card">
-    <h2>Phone use inside your Mac day</h2>
-    <p class="sub">Phone min/hour in hours the Mac is busy vs idle, same day · gray = one day, blue = average</p>
-    <div class="chart-wrap h200"><canvas id="ov-gap"></canvas></div>
-  </div>
-
   <div class="card full">
     <h2>What the data says</h2>
     <ul class="ov-find">
@@ -1696,12 +726,6 @@ async function initOverview() {
       <li><strong>Late-night phone isn't messaging</strong>
         You send ${isFinite(msgRatio) ? msgRatio.toFixed(0) + '×' : '—'} fewer messages per phone-minute after midnight than in the day: it's scrolling/watching, not keeping in touch with home.
         <em>exact iPhone message times (synced to the Mac) vs phone minutes</em></li>
-      <li><strong>The phone fills Mac gaps</strong>
-        In hours the Mac sits idle inside your workday you use the phone ${Math.round(inGap)} min/h, vs ${Math.round(inBusy)} when you're working. Daily totals hide this.
-        <em>same-day hourly pairs · ${gapPairs.length} days</em></li>
-      <li><strong>Most phone time is invisible to the category screenshots</strong>
-        ${Math.round(hiddenShare)}% of minutes aren't in the day's top 3 categories, and at least ${Math.round(noCatShare)}% can't be in any category at all — mostly at night. Tapping an hour bar in Screen Time shows the apps.
-        <em>exact category minutes · ${catDays.length} days</em></li>
       ${months.length >= 2 ? `<li><strong>Desktop leisure already faded</strong>
         YouTube on the Mac: ${Math.round(ytPer(ytPeak))} min/day in ${monthName(ytPeak)} → ${Math.round(ytPer(ytLast))} in ${monthName(ytLast)}. The phone is where the time goes now.
         <em>Chrome history · ${months.length} months</em></li>` : ''}
@@ -1751,20 +775,6 @@ async function initOverview() {
     plugins: [ovRef(OV.SLEEP_LINE, `${OV.SLEEP_LINE} h`)],
   });
   document.getElementById('ov-dark-tbl').innerHTML = ovTable(['night before', 'dark', 'from', 'to'], nights.map(n => [ovDay(n.M), n.d.hours.toFixed(1) + ' h', ovClock(n.d.from), ovClock(n.d.to)]));
-  // what ends a work stretch (emphasis: Chrome)
-  const END_KEYS = [['browser', 'Chrome'], ['away', 'Stepped away'], ['chat', 'Chat apps'], ['other', 'Other apps']];
-  new Chart(document.getElementById('ov-ends'), { type: 'bar',
-    data: { labels: END_KEYS.map(k => k[1]), datasets: [{ data: END_KEYS.map(([k]) => Math.round(100 * ends[k] / nEnds)),
-      backgroundColor: END_KEYS.map(([k]) => k === 'browser' ? OV.ACCENT : OV.CONTEXT), borderRadius: { topRight: 4, bottomRight: 4 }, borderSkipped: 'left', maxBarThickness: 18 }] },
-    options: { ...BASE, indexAxis: 'y', scales: { x: { beginAtZero: true, suggestedMax: 60, grid: { color: '#1e2235' }, ticks: { callback: v => v + '%' } }, y: { grid: { display: false } } },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` ${c.raw}% of ${nEnds} stretches` } } } } });
-  // phone in Mac-busy vs Mac-idle hours, one gray line per day + the average
-  const slope = gapPairs.map(([g, b]) => ({ data: [+b.toFixed(1), +g.toFixed(1)], borderColor: 'rgba(148,163,184,0.28)', borderWidth: 1, pointRadius: 0 }));
-  slope.push({ data: [+inBusy.toFixed(1), +inGap.toFixed(1)], borderColor: OV.ACCENT, backgroundColor: OV.ACCENT, borderWidth: 2,
-    pointRadius: 5, pointHoverRadius: 6, pointBorderColor: OV.SURFACE, pointBorderWidth: 2 });
-  new Chart(document.getElementById('ov-gap'), { type: 'line', data: { labels: ['Mac busy (30+ min/h)', 'Mac idle (< 5 min/h)'], datasets: slope },
-    options: { ...BASE, scales: { x: { grid: { display: false }, offset: true }, y: { beginAtZero: true, grid: { color: '#1e2235' }, title: { display: true, text: 'phone min / hour' } } },
-      plugins: { ...BASE.plugins, tooltip: { ...TIP, filter: i => i.datasetIndex === slope.length - 1, callbacks: { label: c => ` average: ${c.raw} phone min/h` } } } } });
 }
 
 const VIEWS = ['overview', 'mac', 'iphone'];
@@ -1776,6 +786,7 @@ function showView(v) {
   document.getElementById('main-iphone').hidden   = v !== 'iphone';
   document.getElementById('hdr-range').textContent = HDR[v];
   if (v === 'iphone' && !ipBuilt) { ipBuilt = true; initIphone(); }
+  if (v === 'mac' && !macBuilt) { macBuilt = true; initMac(); }
   if (v === 'overview' && !ovBuilt) { ovBuilt = true; initOverview(); }
   requestAnimationFrame(() => Object.values(Chart.instances).forEach(c => c.resize()));
   if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v);
@@ -1783,52 +794,7 @@ function showView(v) {
 document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
 window.addEventListener('hashchange', () => showView(viewFromHash()));
 
-// ════════════════════════════════════════════════════════════════════════════
-// Boot
-// ════════════════════════════════════════════════════════════════════════════
-async function init() {
-  let chrome;
-  try {
-    const [uTxt, sTxt, cTxt] = await Promise.all([
-      fetch('../data/mac_usage.csv').then(r => { if (!r.ok) throw 'mac_usage.csv not found'; return r.text(); }),
-      fetch('../data/mac_sessions.csv').then(r => { if (!r.ok) throw 'mac_sessions.csv not found'; return r.text(); }),
-      fetch('../data/chrome_history.csv').then(r => r.ok ? r.text() : '').catch(() => ''),
-    ]);
-    _usage    = parseCSV(uTxt);
-    _sessions = parseCSV(sTxt);
-    chrome    = cTxt ? parseCSV(cTxt) : [];
-  } catch (err) {
-    document.getElementById('main').innerHTML = `
-      <div class="card full">
-        <p class="err">Failed to load: ${err}</p>
-        <p class="dim" style="margin-top:8px">
-          Serve from project root:<br>
-          <code>cd /path/to/project &amp;&amp; python3 -m http.server 8000</code><br>
-          then open <code>http://localhost:8000/dashboard/</code>
-        </p>
-      </div>`;
-    return;
-  }
-
-  const dates = uniqSorted(_usage.map(r => r.date));
-  HDR.mac = `${dates[0]} → ${dates[dates.length-1]}  ·  ${dates.length} days`;
-  if (!document.getElementById('main').hidden) document.getElementById('hdr-range').textContent = HDR.mac;
-
-  // Compute Chrome → Mac category proportions per date (used to redistribute
-  // Chrome time across categories in the Mac-side charts).
-  const chromeShares = buildChromeShares(chrome);
-
-  buildStrip(_usage, chromeShares);
-  buildCatExplorer(_usage);
-  buildMix(_usage, chromeShares);
-  buildRhythm(_sessions, chromeShares);
-  buildChrome(chrome);
-  buildMonths(_usage, chromeShares);
-  loadEvents().then(ev => { buildEnvelope(ev.macApp); buildLadder(ev.macApp); });
-}
-
 showView(viewFromHash());
-init();
 </script>
 </body>
 </html>

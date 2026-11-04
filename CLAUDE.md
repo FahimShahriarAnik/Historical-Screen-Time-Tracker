@@ -88,7 +88,7 @@ Sources roll off: iPhone = current week + 3 before, Mac `knowledgeC.db` ≈ 30 d
 - Data stays local — `data/*.csv` is gitignored. Back up separately if needed.
 
 ### After adding new apps to your Mac
-- Edit the `CATS` object near the top of `dashboard/index.html` to assign the new app to a category. No re-sync needed — the dashboard categorises at load time
+- If it's a work app, add its bundle id to `OV.BUILD` in `dashboard/index.html` so it counts toward focus stretches
 
 ## Chrome Data — Assumptions & Limitations
 
@@ -105,13 +105,11 @@ Sources roll off: iPhone = current week + 3 before, Mac `knowledgeC.db` ≈ 30 d
 ## Dashboard
 - `dashboard/index.html` — single file, Chart.js 4 via CDN
 - Served by `scripts/sync_all.py` (or `python3 -m http.server 8000` from project root) → `http://localhost:8000/dashboard/`
-- Each tab = **2 main charts + 4 supporting** (user's rule, 2026-11-04). No hour-by-hour heatmaps — the user found they reveal nothing
-- **Overview** (default, `#overview`): phone/day vs goal + 3 facts · the **two actions** (started 2026-11-03; baseline = days before) each with a tracker chart · MAIN: night profile (Sun–Thu vs Fri–Sat nights), screens-dark hours per night · SUPPORTING: the 2 trackers, what ends a work stretch, phone in Mac-busy vs Mac-idle hours · 6 live findings. Tunables in the `OV` constant (start date, targets, focus-block rules, Build apps). Shared helpers `loadEvents()` / `workBlocks()`. Definitions: `analysis/README.md`. Never hard-code personal numbers — the repo is public
-- **Mac** (`#mac`): 7-day strip · MAIN: daily category mix, day envelope (first → last activity, exact, 12:30 AM line) · SUPPORTING: work time by stretch length per week, month by month (deep work vs leisure), daily rhythm, Chrome breakdown · app categories (collapsed; click an app → App Detail)
-- **iPhone** (`#iphone`, built lazily): tiles · MAIN: each day split after-midnight vs rest (goal lines, 7-day avg), when the phone is used (6 AM → 6 AM) · SUPPORTING: top-3 categories with the "in no category (at least)" floor + table, weekly average, weekdays vs weekends by part of day, messages sent per phone-hour · patterns, notes. Category colours in `IP_CATS` (validated palette — keep the order)
-- Mac app categories (Deep Work / Comms / Browse / Entertainment / System) defined in `CATS` near the top of index.html
-- Chrome domain categories (Dev / Research / Entertainment / Comms / Shopping / Search / Other) defined in `CHROME_CATS` just below `CATS`. Suffix-matched. `app.blackbox.ai` and the Tab Suspender extension (`fiabciakcmgepblmdkmemdbbkilneeeh`) excluded as background noise.
-- **Chrome → Mac category overrides** in `CHROME_TO_MAC_CAT`: for Mac-side charts, Chrome time is redistributed across Mac categories using each day's domain breakdown (e.g. `claude.ai` counts as Deep Work). Anything not listed defaults to Browse.
+- Layout rule (user, 2026-11-04): **Mac and iPhone tabs = 3 key numbers · 1 key decision (with a tracker chart) · 3 charts total**, medium-length text, nothing that repeats the Overview. No hour-by-hour heatmaps
+- **Overview** (default, `#overview`): phone/day vs goal + 3 facts · **two actions** (started 2026-11-03; baseline = days before), each with a tracker · night profile (Sun–Thu vs Fri–Sat) · screens-dark hours per night · 4 live findings. Tunables in `OV`; shared helpers `loadEvents()` / `workBlocks()`
+- **Mac** (`#mac`, lazy): focus only, from exact times in `device_events.csv`. A focus stretch = Build apps back-to-back (detours ≤ 3 min) for ≥ 25 min. Numbers: focused time / stretches per weekday / hours from opening the Mac to the first stretch. Decision: **start a timer within an hour of opening the Mac** (tracker: hours to first stretch). Charts: focused time per day, when stretches start
+- **iPhone** (`#iphone`, lazy): numbers: last 7 days, 6 AM–midnight per day, Social per day. Decision: **Social limit 30 min/day with Block at End of Limit** (tracker: Social per day). Charts: each day split after-midnight vs rest, categories + "in no category (at least)" floor
+- Definitions: `analysis/README.md`. Never hard-code personal numbers in the dashboard — the repo is public. The old Mac charts (category mix, Chrome breakdown, rhythm, fortnight, etc.) were removed 2026-11-04; recover from git history if ever needed
 
 ## Thresholds
 - Green: under 120 mins
