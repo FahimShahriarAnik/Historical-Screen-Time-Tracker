@@ -23,3 +23,6 @@ __pycache__/
 # iPhone screenshots (personal) + compiled OCR helper
 mobile time tracker/
 scripts/.bin/
+
+# Analysis outputs contain personal numbers — repo is public, keep them local
+analysis/out/

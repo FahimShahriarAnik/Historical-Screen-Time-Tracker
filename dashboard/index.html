@@ -275,6 +275,47 @@
     .ip-notes strong { color: #94a3b8; font-weight: 600; }
     @media (max-width: 860px) { .ip-tiles { grid-template-columns: repeat(2, 1fr); } }
 
+    /* ── Overview tab ── */
+    .ov-hero { display: flex; gap: 28px; align-items: stretch; flex-wrap: wrap; }
+    .ov-hero-main { min-width: 220px; }
+    .ov-big { font-size: 56px; font-weight: 650; line-height: 1.05; color: #f1f5f9; letter-spacing: -0.02em; }
+    .ov-big small { font-size: 16px; font-weight: 500; color: #94a3b8; margin-left: 6px; letter-spacing: 0; }
+    .ov-status { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; font-weight: 600;
+                 padding: 3px 10px; border-radius: 999px; background: #0f1117; border: 1px solid #1e2235; color: #cbd5e1; }
+    .ov-status i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .ov-hero-sub { font-size: 12px; color: #64748b; margin-top: 8px; }
+    .ov-facts { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(150px, 1fr)); gap: 12px; align-content: end; }
+    .ov-fact { background: #0f1117; border: 1px solid #1e2235; border-radius: 8px; padding: 12px 14px; }
+    .ov-fact .v { font-size: 24px; font-weight: 650; color: #f1f5f9; }
+    .ov-fact .l { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .ov-action { display: flex; flex-direction: column; gap: 8px; }
+    .ov-action-head { display: flex; gap: 12px; align-items: flex-start; }
+    .ov-num { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #1e2235; color: #f1f5f9;
+              font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+    .ov-action h3 { font-size: 17px; font-weight: 650; color: #f1f5f9; line-height: 1.3; }
+    .ov-why  { font-size: 13px; color: #cbd5e1; }
+    .ov-how  { font-size: 12px; color: #94a3b8; }
+    .ov-how b { color: #cbd5e1; font-weight: 600; }
+    .ov-track { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+    .ov-track > div { background: #0f1117; border: 1px solid #1e2235; border-radius: 8px; padding: 8px 10px; }
+    .ov-track .v { font-size: 18px; font-weight: 650; color: #f1f5f9; }
+    .ov-track .l { font-size: 11px; color: #64748b; }
+    .ov-find { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+    .ov-find li { font-size: 13px; color: #94a3b8; padding: 10px 12px; background: #0f1117; border: 1px solid #1e2235; border-radius: 8px; }
+    .ov-find li strong { display: block; color: #e2e8f0; font-weight: 600; margin-bottom: 2px; }
+    .ov-find li em { display: block; font-style: normal; font-size: 11px; color: #475569; margin-top: 4px; }
+    .ov-nums { margin-top: 10px; font-size: 12px; color: #64748b; }
+    .ov-nums summary { cursor: pointer; }
+    .ov-nums table { width: 100%; border-collapse: collapse; margin-top: 6px; font-variant-numeric: tabular-nums; }
+    .ov-nums td, .ov-nums th { padding: 3px 6px; border-bottom: 1px solid #161927; text-align: right; color: #94a3b8; font-weight: 400; }
+    .ov-nums th { color: #64748b; }
+    .ov-nums td:first-child, .ov-nums th:first-child { text-align: left; }
+    @media (max-width: 860px) {
+      .ov-facts { grid-template-columns: 1fr 1fr; }
+      .ov-find { grid-template-columns: 1fr; }
+      .ov-big { font-size: 44px; }
+    }
+
     .err  { color: #ef4444; padding: 8px 0; font-size: 13px; }
     .dim  { color: #475569; font-size: 12px; }
     code  { color: #94a3b8; background: #0f1117; padding: 2px 5px; border-radius: 3px; font-size: 12px; }
@@ -295,13 +336,17 @@
 <header>
   <h1>Screen Time</h1>
   <nav class="tabs" role="tablist">
-    <button class="tab" role="tab" data-view="mac" aria-selected="true">Mac</button>
+    <button class="tab" role="tab" data-view="overview" aria-selected="true">Overview</button>
+    <button class="tab" role="tab" data-view="mac" aria-selected="false">Mac</button>
     <button class="tab" role="tab" data-view="iphone" aria-selected="false">iPhone</button>
   </nav>
   <p id="hdr-range">loading…</p>
 </header>
 
-<main id="main">
+<!-- ═══════════════════════════ Overview (default) ═══════════════════════════ -->
+<main id="main-overview" class="ov" hidden></main>
+
+<main id="main" hidden>
 
   <!-- 1. Seven-day summary -->
   <div class="card full">
@@ -1850,8 +1895,8 @@ const IP_CATS = [
 ];
 const IP_NOT_SHOWN = '#2a3045';
 const HOUR_LBL = h => h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`;
-const HDR = { mac:'loading…', iphone:'loading…' };
-let ipBuilt = false;
+const HDR = { overview:'loading…', mac:'loading…', iphone:'loading…' };
+let ipBuilt = false, ovBuilt = false;
 
 function ipCatKey(name) {
   if (name === 'Productivity') return 'Productivity & Finance';
@@ -2076,17 +2121,356 @@ async function initIphone() {
   ].map(t => `<li>${t}</li>`).join('');
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// Overview tab (default) — what matters, in one screen, plus the two actions.
+// Every number is computed live from data/*.csv; nothing personal is hard-coded.
+// How each metric is defined: analysis/README.md
+// ════════════════════════════════════════════════════════════════════════════
+const OV = {
+  START: '2026-11-03',     // the two actions began here; earlier days are the baseline
+  NIGHT_END: 6,            // "after midnight" = 00:00–05:59
+  NIGHT_TARGET: 30,        // action 1: phone minutes after midnight, any night
+  FOCUS_MIN: 50,           // action 2: a focus block = Build apps back-to-back for ≥ 50 min …
+  FOCUS_GAP: 3,            // … detours of ≤ 3 min allowed
+  FOCUS_TARGET: 60,        // … on ≥ 60% of weekdays
+  SLEEP_LINE: 7,           // reference line on the screens-dark chart (hours)
+  PHONE_ACTIVE: 2,         // an hour with ≥ 2 phone minutes counts as "on the phone"
+  // Mac "Build" apps: code, writing, notes, papers. Chrome is left out (mixed work + leisure).
+  BUILD: new Set(['com.microsoft.VSCode','md.obsidian','com.apple.Preview','org.zotero.zotero','com.elsevier.mendeley',
+    'com.apple.Terminal','com.anthropic.claudefordesktop','com.openai.codex','com.google.antigravity','com.apple.Notes',
+    'com.apple.TextEdit','com.apple.iWork.Pages','com.apple.iWork.Keynote','com.apple.iWork.Numbers',
+    'com.superduper.superwhisper','com.jetbrains.pycharm','com.apple.dt.Xcode']),
+  ACCENT:'#3987e5', CONTEXT:'#64748b', SURFACE:'#1a1d2e', REF:'#94a3b8',
+};
+const _ovCsv = {};
+const ovLoad = f => _ovCsv[f] ||= fetch('../data/' + f).then(r => r.ok ? r.text() : '').then(t => t ? parseCSV(t) : []).catch(() => []);
+const ovAdd = (s, n) => { const d = new Date(s + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const ovDow = s => new Date(s + 'T12:00:00').getDay();                       // 0 = Sunday
+const ovWorkMorning = s => { const w = ovDow(s); return w >= 1 && w <= 5; }; // the night before a weekday
+const ovMean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN;
+const ovMedian = a => { if (!a.length) return NaN; const b = [...a].sort((x, y) => x - y), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+const ovMin = ts => new Date(ts.replace(' ', 'T')).getTime() / 60000;        // local "YYYY-MM-DD HH:MM:SS" → epoch minutes
+const ovAt = (d, h) => new Date(`${d}T${String(h).padStart(2, '0')}:00:00`).getTime() / 60000;
+const ovLocal = t => { const d = new Date(t * 60000); return { date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, hour: d.getHours() }; };
+const ovDay = s => new Date(s + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'numeric', day:'numeric' });
+const ovClock = t => new Date(t * 60000).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+const ovH = m => `${(m / 60).toFixed(1)} h`;
+
+// Chart.js helpers: a dashed target line, a shaded band, a "start" marker. Text uses text tokens, never series colour.
+const ovRef = (y, label) => ({ id:'ovRef', afterDatasetsDraw(c) {
+  const { ctx, chartArea:a, scales:{ y:ys } } = c, py = ys.getPixelForValue(y);
+  ctx.save(); ctx.strokeStyle = OV.REF; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(a.left, py); ctx.lineTo(a.right, py); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#cbd5e1'; ctx.font = '11px -apple-system, system-ui, sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(label, a.left + 4, py - 5); ctx.restore(); } });
+const ovBand = (i0, i1, label) => ({ id:'ovBand', beforeDatasetsDraw(c) {
+  const { ctx, chartArea:a, scales:{ x } } = c, x0 = x.getPixelForValue(i0), x1 = x.getPixelForValue(i1);
+  ctx.save(); ctx.fillStyle = 'rgba(148,163,184,0.08)'; ctx.fillRect(x0, a.top, x1 - x0, a.bottom - a.top);
+  ctx.fillStyle = '#64748b'; ctx.font = '11px -apple-system, system-ui, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(label, (x0 + x1) / 2, a.top + 12); ctx.restore(); } });
+const ovStartMark = idx => ({ id:'ovStart', afterDatasetsDraw(c) {
+  if (idx < 0) return; const { ctx, chartArea:a, scales:{ x } } = c;
+  const px = idx === 0 ? a.left : (x.getPixelForValue(idx - 1) + x.getPixelForValue(idx)) / 2;
+  ctx.save(); ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px, a.top); ctx.lineTo(px, a.bottom); ctx.stroke();
+  ctx.fillStyle = '#cbd5e1'; ctx.font = '11px -apple-system, system-ui, sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('started', px + 4, a.top + 10); ctx.restore(); } });
+const ovBars = (color) => ({ backgroundColor: color, borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: 'bottom', maxBarThickness: 18 });
+const ovTable = (head, rows) => `<details class="ov-nums"><summary>Show numbers</summary><table><tr>${head.map(h => `<th>${h}</th>`).join('')}</tr>${rows.map(r => `<tr>${r.map(v => `<td>${v}</td>`).join('')}</tr>`).join('')}</table></details>`;
+
+async function initOverview() {
+  const main = document.getElementById('main-overview');
+  const [st, hourly, events, chrome, cats] = await Promise.all(
+    ['screentime.csv', 'iphone_hourly.csv', 'device_events.csv', 'chrome_history.csv', 'iphone_categories.csv'].map(ovLoad));
+
+  // ── iPhone: exact daily totals + estimated minutes per hour
+  const phoneDay = {};
+  st.forEach(r => { if (r.date && r.total_mins !== '' && !(r.date >= IPHONE_SAMPLE.from && r.date <= IPHONE_SAMPLE.to)) phoneDay[r.date] = +r.total_mins; });
+  const ph = {};
+  hourly.forEach(r => { if (r.metric === 'screen_mins') (ph[r.date] ||= Array(24).fill(0))[+r.hour] += +r.value; });
+  const phoneDates = Object.keys(phoneDay).sort();
+  if (!phoneDates.length || !events.length) {
+    main.innerHTML = `<div class="card full"><p class="err">Not enough data for the overview yet.</p>
+      <p class="dim" style="margin-top:8px">Run <code>python3 scripts/sync_all.py</code> (it needs iPhone screenshots and the Mac sync).</p></div>`;
+    HDR.overview = 'no data'; return;
+  }
+
+  // ── exact-time events (data/device_events.csv, from sync_mac.py)
+  const macApp = [], macScreen = [], intents = [];
+  events.forEach(r => {
+    if (r.device === 'Mac' && r.stream === 'app') macApp.push({ s: ovMin(r.start), e: ovMin(r.end), app: r.app, date: r.date });
+    else if (r.device === 'Mac' && r.stream === 'screen' && r.kind === 'on') macScreen.push({ s: ovMin(r.start), e: ovMin(r.end) });
+    else if (r.device === 'iPhone' && r.stream === 'intent') intents.push({ s: ovMin(r.start), e: ovMin(r.end), kind: r.kind, dir: r.dir || '', app: r.app });
+  });
+  macApp.sort((a, b) => a.s - b.s);
+  const macDates = uniqSorted(macApp.map(x => x.date));
+  const awakeEv = intents.filter(iv => iv.dir === 'out' || (iv.app === 'com.apple.mobiletimer' && ovLocal(iv.s).hour >= 5 && ovLocal(iv.s).hour < 12));
+  const today = new Date().toISOString().slice(0, 10);
+
+  // ── periods: baseline = before START; "since start" once ≥ 7 days exist
+  const base = phoneDates.filter(d => d < OV.START), cur = phoneDates.filter(d => d >= OV.START);
+  const win = cur.length >= 7 ? cur : base;
+  const winSet = new Set(win);
+  HDR.overview = cur.length >= 7 ? `since ${ovDay(OV.START)}: ${cur.length} days · baseline ${base.length} days`
+                                 : `baseline ${win[0]} → ${win[win.length - 1]} · actions started ${OV.START}`;
+  if (!main.hidden) document.getElementById('hdr-range').textContent = HDR.overview;
+
+  // ── night phone (minutes 00:00–05:59 on morning date d)
+  const nightPhone = d => ph[d] ? ph[d].slice(0, OV.NIGHT_END).reduce((a, b) => a + b, 0) : null;
+  const nightsIn = ds => ds.filter(d => ph[d]);
+  const workN = nightsIn(win).filter(ovWorkMorning), wkndN = nightsIn(win).filter(d => !ovWorkMorning(d));
+  const workAvg = ovMean(workN.map(nightPhone)), wkndAvg = ovMean(wkndN.map(nightPhone));
+  const totWork = ovMean(win.filter(ovWorkMorning).map(d => phoneDay[d])), totWknd = ovMean(win.filter(d => !ovWorkMorning(d)).map(d => phoneDay[d]));
+
+  // ── Mac minutes per date-hour (exact intervals split at hour boundaries)
+  const macHour = {};
+  macApp.forEach(iv => { for (let t = iv.s; t < iv.e;) { const nx = Math.min(iv.e, Math.floor(t / 60) * 60 + 60), L = ovLocal(t);
+    (macHour[L.date] ||= Array(24).fill(0))[L.hour] += nx - t; t = nx; } });
+
+  // ── focus blocks: Build intervals back-to-back, detours ≤ FOCUS_GAP min
+  const focus = {}, blocks = [];
+  { let b = null;
+    const close = () => { if (!b) return; const o = focus[b.date] ||= { longest: 0, n: 0 }; const len = b.e - b.s;
+      if (len > o.longest) o.longest = len; if (len >= OV.FOCUS_MIN) o.n++; blocks.push({ ...b, len }); b = null; };
+    macApp.forEach((iv, i) => { if (!OV.BUILD.has(iv.app)) return;
+      if (b && iv.s - b.e <= OV.FOCUS_GAP) { b.e = Math.max(b.e, iv.e); b.last = i; } else { close(); b = { s: iv.s, e: iv.e, date: iv.date, last: i }; } });
+    close(); }
+  // what ended each work stretch of ≥ 5 min: the next app (or nothing = stepped away)
+  const CHAT = new Set(['net.whatsapp.WhatsApp','com.apple.MobileSMS','com.hnc.Discord','com.tinyspeck.slackmacgap','ru.keepcoder.Telegram','com.apple.mail','com.microsoft.teams2']);
+  const ends = { browser: 0, chat: 0, away: 0, other: 0 };
+  blocks.filter(x => x.len >= 5).forEach(x => { const nx = macApp[x.last + 1];
+    ends[!nx || nx.s - x.e > 2 ? 'away' : nx.app === 'com.google.Chrome' ? 'browser' : CHAT.has(nx.app) ? 'chat' : 'other']++; });
+  const nEnds = Object.values(ends).reduce((a, b) => a + b, 0) || 1;
+  const reach = (h0, h1) => { const bs = blocks.filter(x => { const h = ovLocal(x.s).hour; return h >= h0 && h < h1 && x.len >= 5; });
+    return bs.length >= 15 ? 100 * bs.filter(x => x.len >= 25).length / bs.length : NaN; };
+  const eveReach = reach(17, 24), dayReach = reach(6, 17);
+  const focusDays = macDates.filter(d => d < today && ovWorkMorning(d) && macHour[d]);   // weekdays with Mac data
+  const fBase = focusDays.filter(d => d < OV.START), fCur = focusDays.filter(d => d >= OV.START);
+  const fShare = ds => ds.length ? 100 * ds.filter(d => (focus[d]?.longest || 0) >= OV.FOCUS_MIN).length / ds.length : NaN;
+
+  // ── screens-dark window per night: longest run with no phone hour (≥ 2 min), no Mac screen-on, no iPhone message/call/alarm,
+  //    (sent message/call, morning alarm — incoming messages don't count) that overlaps 05:00–08:00. Phone use inside a boundary hour is assumed to sit at its far side (refined by exact events).
+  function dark(M) {
+    const E = ovAdd(M, -1); if (!ph[E] || !ph[M]) return null;
+    const t0 = ovAt(E, 18), t1 = ovAt(M, 14), N = Math.round(t1 - t0), act = new Uint8Array(N), exact = new Uint8Array(N), hrs = [];
+    const mark = (arr, s, e) => { for (let t = Math.max(0, Math.floor(s - t0)); t < Math.min(N, Math.ceil(e - t0)); t++) arr[t] = 1; };
+    [[E, [18, 19, 20, 21, 22, 23]], [M, [...Array(14).keys()]]].forEach(([d, hs]) => hs.forEach(h => {
+      const m = ph[d][h], s = ovAt(d, h); if (m >= OV.PHONE_ACTIVE) { mark(act, s, s + 60); hrs.push({ s, m }); } }));
+    macScreen.forEach(iv => { if (iv.e > t0 && iv.s < t1) { mark(act, iv.s, iv.e); mark(exact, iv.s, iv.e); } });
+    awakeEv.forEach(iv => { if (iv.s >= t0 && iv.s < t1) { mark(act, iv.s, Math.max(iv.e, iv.s + 1)); mark(exact, iv.s, Math.max(iv.e, iv.s + 1)); } });
+    const lo = ovAt(M, 5) - t0, hi = ovAt(M, 8) - t0; let best = null, rs = -1;
+    for (let t = 0; t <= N; t++) {
+      if (t < N && !act[t]) { if (rs < 0) rs = t; continue; }
+      if (rs >= 0 && rs < hi && t > lo && (!best || t - rs > best[1] - best[0])) best = [rs, t]; rs = -1;
+    }
+    if (!best) return null;
+    let [s, e] = best;
+    const hb = hrs.find(h => h.s + 60 === s + t0), ha = hrs.find(h => h.s === e + t0);
+    if (hb) { let ns = s - (60 - hb.m); for (let t = s - 1; t >= ns; t--) if (exact[t]) { ns = t + 1; break; } s = Math.max(0, ns); }
+    if (ha) { let ne = e + (60 - ha.m); for (let t = e; t < ne; t++) if (exact[t]) { ne = t; break; } e = Math.min(N, ne); }
+    return { hours: (e - s) / 60, from: s + t0, to: e + t0 };
+  }
+  const nights = nightsIn(win).map(M => ({ M, work: ovWorkMorning(M), d: dark(M) })).filter(n => n.d);
+  const darkWork = ovMedian(nights.filter(n => n.work).map(n => n.d.hours)), darkWknd = ovMedian(nights.filter(n => !n.work).map(n => n.d.hours));
+
+  // ── phone in Mac gaps vs Mac-busy hours (same day, inside the Mac workday)
+  const gapPairs = [];
+  win.forEach(d => { const m = macHour[d], p = ph[d]; if (!m || !p) return;
+    const hs = [...Array(18).keys()].map(i => i + 6), on = hs.filter(h => m[h] >= 5); if (on.length < 2) return;
+    const span = hs.filter(h => h >= on[0] && h <= on[on.length - 1]);
+    const busy = span.filter(h => m[h] >= 30), gap = span.filter(h => m[h] < 5);
+    if (busy.length && gap.length) gapPairs.push([ovMean(gap.map(h => p[h])), ovMean(busy.map(h => p[h]))]); });
+  const inGap = ovMean(gapPairs.map(x => x[0])), inBusy = ovMean(gapPairs.map(x => x[1]));
+
+  // ── messages per phone-minute: after midnight vs daytime
+  const msgH = Array(24).fill(0), phH = Array(24).fill(0);
+  win.forEach(d => ph[d]?.forEach((m, h) => phH[h] += m));
+  intents.forEach(iv => { if (iv.kind !== 'Messages' || iv.dir !== 'out') return; const L = ovLocal(iv.s); if (winSet.has(L.date) && ph[L.date]) msgH[L.hour]++; });
+  const rate = (a, b) => msgH.slice(a, b).reduce((x, y) => x + y, 0) / Math.max(1, phH.slice(a, b).reduce((x, y) => x + y, 0));
+  const msgRatio = rate(9, 22) / Math.max(1e-9, rate(0, OV.NIGHT_END));
+
+  // ── iPhone minutes outside the day's top-3 categories
+  const top3 = {}; cats.forEach(r => top3[r.date] = (top3[r.date] || 0) + (+r.mins));
+  const catDays = win.filter(d => top3[d] != null);
+  const hiddenShare = 100 * (1 - catDays.reduce((a, d) => a + top3[d], 0) / Math.max(1, catDays.reduce((a, d) => a + phoneDay[d], 0)));
+  const third = {}; cats.forEach(r => { if (+r.rank === 3) third[r.date] = +r.mins; });
+  const noCat = catDays.filter(d => third[d] != null).reduce((a, d) => a + Math.max(0, phoneDay[d] - top3[d] - 9 * third[d]), 0);
+  const noCatShare = 100 * noCat / Math.max(1, catDays.reduce((a, d) => a + phoneDay[d], 0));
+
+  // ── YouTube on the Mac (Chrome), peak month vs latest month
+  const yt = {}, cd = {};
+  chrome.forEach(r => { const m = r.date.slice(0, 7); (cd[m] ||= new Set()).add(r.date); if (r.domain === 'youtube.com' || r.domain.endsWith('.youtube.com')) yt[m] = (yt[m] || 0) + (+r.total_mins); });
+  const months = Object.keys(cd).filter(m => cd[m].size >= 10).sort();
+  const ytPer = m => (yt[m] || 0) / cd[m].size, ytPeak = months.reduce((a, m) => ytPer(m) > ytPer(a) ? m : a, months[0]), ytLast = months[months.length - 1];
+  const monthName = m => new Date(m + '-15T12:00:00').toLocaleDateString('en-US', { month:'short' });
+
+  // ── headline
+  const phoneAvg = ovMean(win.map(d => phoneDay[d]));
+  const macAvg = ovMean(win.filter(d => macHour[d]).map(d => macHour[d].reduce((a, b) => a + b, 0)));
+  const nightShare = 100 * win.filter(d => ph[d]).reduce((a, d) => a + nightPhone(d), 0) / Math.max(1, win.filter(d => ph[d]).reduce((a, d) => a + phoneDay[d], 0));
+  const lvl = threshold(phoneAvg), baseAvg = ovMean(base.map(d => phoneDay[d]));
+  const delta = cur.length >= 7 ? ` · ${phoneAvg <= baseAvg ? '▼' : '▲'} ${fmtHM(Math.abs(phoneAvg - baseAvg))} vs baseline` : '';
+
+  // ── action trackers (all nights / weekdays, baseline + since start)
+  const workNightsAll = Object.keys(ph).sort().filter(d => !(d >= IPHONE_SAMPLE.from && d <= IPHONE_SAMPLE.to));   // every night (morning date)
+  const heavy = base.filter(d => ph[d]).reduce((a, d) => nightPhone(d) > nightPhone(a) ? d : a, base.find(d => ph[d]) || base[0]);
+  const nBase = workNightsAll.filter(d => d < OV.START), nCur = workNightsAll.filter(d => d >= OV.START);
+  const hit1 = ds => ds.filter(d => nightPhone(d) <= OV.NIGHT_TARGET).length;
+  const since = (vals, fmt) => vals.length ? fmt : '—';
+
+  main.innerHTML = `
+  <div class="card full">
+    <div class="ov-hero">
+      <div class="ov-hero-main">
+        <h2>Phone, per day</h2>
+        <div class="ov-big">${fmtHM(phoneAvg)}<small>goal 2h</small></div>
+        <div class="ov-status"><i style="background:${IP_STATUS[lvl]}"></i>${IP_STATUS_LABEL[lvl]}</div>
+        <div class="ov-hero-sub">${cur.length >= 7 ? 'since ' + ovDay(OV.START) : 'baseline'} · ${win.length} days${delta}</div>
+      </div>
+      <div class="ov-facts">
+        <div class="ov-fact"><div class="v">${Math.round(nightShare)}%</div><div class="l">of phone time is after midnight</div></div>
+        <div class="ov-fact"><div class="v">${isFinite(darkWork) ? darkWork.toFixed(1) + ' h' : '—'}</div><div class="l">screens dark before a workday (median)</div></div>
+        <div class="ov-fact"><div class="v">${ovH(phoneAvg + macAvg)}</div><div class="l">phone + Mac per day (${fmtHM(macAvg)} on the Mac)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card ov-action">
+    <div class="ov-action-head"><div class="ov-num">1</div>
+      <h3>Every night: phone out of the bedroom at 12:30 AM</h3></div>
+    <p class="ov-why">Before workdays the phone runs to about 3 AM — <b>${fmtHM(workAvg)}</b> after midnight vs <b>${fmtHM(wkndAvg)}</b> before weekends,
+      with the same daily total (${fmtHM(totWork)} vs ${fmtHM(totWknd)}). It just moves later, and screens go dark for only ~${isFinite(darkWork) ? darkWork.toFixed(1) : '?'} h.</p>
+    <p class="ov-how"><b>How:</b> Settings → Screen Time → Downtime → Every Day, 12:30 AM–7:30 AM, Block at Downtime. Charge the phone outside the bedroom; close the Mac lid then too.
+      <b>Once:</b> in Screen Time open ${ovDay(heavy)} (your heaviest night) → tap the 1–3 AM bars. iOS lists the apps; most night time is in no category, so that app is the one to block.</p>
+    <div class="ov-track">
+      <div><div class="v">${fmtHM(ovMean(nBase.map(nightPhone)))}</div><div class="l">baseline, per night (${hit1(nBase)} of ${nBase.length} on target)</div></div>
+      <div><div class="v">≤ ${OV.NIGHT_TARGET}m</div><div class="l">target</div></div>
+      <div><div class="v">${since(nCur, `${hit1(nCur)} / ${nCur.length}`)}</div><div class="l">${nCur.length ? 'nights on target since start' : 'since start — fills in at the next sync'}</div></div>
+    </div>
+    <div class="legend" style="margin:4px 0 0">
+      <span class="legend-item"><span class="legend-dot" style="background:${OV.ACCENT}"></span>night before a workday</span>
+      <span class="legend-item"><span class="legend-dot" style="background:${OV.CONTEXT}"></span>before a weekend</span>
+    </div>
+    <div class="chart-wrap h180"><canvas id="ov-a1"></canvas></div>
+  </div>
+
+  <div class="card ov-action">
+    <div class="ov-action-head"><div class="ov-num">2</div>
+      <h3>Weekdays: one 50-minute focus block, browsing batched, phone in another room</h3></div>
+    <p class="ov-why">Only <b>${Math.round(fShare(fBase))}%</b> of weekdays had a 50-minute stretch of coding/writing (longest block, median ${Math.round(ovMedian(fBase.map(d => focus[d]?.longest || 0)))} min).
+      Chrome ends <b>${Math.round(100 * ends.browser / nEnds)}%</b> of your work stretches (chat only ${Math.round(100 * ends.chat / nEnds)}%), and in the Mac's idle gaps you pick up the phone (${Math.round(inGap)} vs ${Math.round(inBusy)} min/hour).</p>
+    <p class="ov-how"><b>How:</b> keep a "look up later" note and open Chrome only for the task; phone in another room, WhatsApp quit.
+      ${eveReach > 1.5 * dayReach ? `Start it after 5 PM: stretches started then reach 25 min ${Math.round(eveReach)}% of the time vs ${Math.round(dayReach)}% earlier — and stop by 10 PM so it doesn't feed the night. ` : ''}Counts: VS Code, Obsidian, Terminal, papers, AI coding apps; detours under ${OV.FOCUS_GAP} min don't break it.</p>
+    <div class="ov-track">
+      <div><div class="v">${Math.round(fShare(fBase))}%</div><div class="l">baseline, weekdays with one</div></div>
+      <div><div class="v">≥ ${OV.FOCUS_TARGET}%</div><div class="l">target</div></div>
+      <div><div class="v">${since(fCur, `${Math.round(fShare(fCur))}%`)}</div><div class="l">${fCur.length ? `of ${fCur.length} weekdays since start` : 'since start — fills in at the next sync'}</div></div>
+    </div>
+    <div class="chart-wrap h180"><canvas id="ov-a2"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2>Before workdays the phone runs past 3 AM</h2>
+    <p class="sub">Average phone minutes per hour, evening → morning · <em>estimated</em> from the screenshot bars</p>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:${OV.ACCENT}"></span>Sun–Thu nights (${workN.length})</span>
+      <span class="legend-item"><span class="legend-dot" style="background:${OV.CONTEXT}"></span>Fri–Sat nights (${wkndN.length})</span>
+    </div>
+    <div class="chart-wrap h240"><canvas id="ov-nights"></canvas></div>
+    <div id="ov-nights-tbl"></div>
+  </div>
+
+  <div class="card">
+    <h2>Hours with every screen dark, per night</h2>
+    <p class="sub">Longest stretch with no phone use, no Mac screen and nothing sent from the iPhone · hour-level phone data, so ±30 min</p>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:${OV.ACCENT}"></span>before a workday · median ${isFinite(darkWork) ? darkWork.toFixed(1) : '—'} h</span>
+      <span class="legend-item"><span class="legend-dot" style="background:${OV.CONTEXT}"></span>before a weekend · median ${isFinite(darkWknd) ? darkWknd.toFixed(1) : '—'} h</span>
+    </div>
+    <div class="chart-wrap h240"><canvas id="ov-dark"></canvas></div>
+    <div id="ov-dark-tbl"></div>
+  </div>
+
+  <div class="card full">
+    <h2>What the data says</h2>
+    <ul class="ov-find">
+      <li><strong>The problem is work nights, not weekends</strong>
+        ${fmtHM(workAvg)} of phone after midnight before workdays vs ${fmtHM(wkndAvg)} before weekends. On weekends the same time moves into the day.
+        <em>night-anchored hours · ${workN.length} vs ${wkndN.length} nights</em></li>
+      <li><strong>Late-night phone isn't messaging</strong>
+        You send ${isFinite(msgRatio) ? msgRatio.toFixed(0) + '×' : '—'} fewer messages per phone-minute after midnight than in the day: it's scrolling/watching, not keeping in touch with home.
+        <em>exact iPhone message times (synced to the Mac) vs phone minutes</em></li>
+      <li><strong>The phone fills Mac gaps</strong>
+        In hours the Mac sits idle inside your workday you use the phone ${Math.round(inGap)} min/h, vs ${Math.round(inBusy)} when you're working. Daily totals hide this.
+        <em>same-day hourly pairs · ${gapPairs.length} days</em></li>
+      <li><strong>Most phone time is invisible to the category screenshots</strong>
+        ${Math.round(hiddenShare)}% of minutes aren't in the day's top 3 categories, and at least ${Math.round(noCatShare)}% can't be in any category at all — mostly at night. Tapping an hour bar in Screen Time shows the apps.
+        <em>exact category minutes · ${catDays.length} days</em></li>
+      ${months.length >= 2 ? `<li><strong>Desktop leisure already faded</strong>
+        YouTube on the Mac: ${Math.round(ytPer(ytPeak))} min/day in ${monthName(ytPeak)} → ${Math.round(ytPer(ytLast))} in ${monthName(ytLast)}. The phone is where the time goes now.
+        <em>Chrome history · ${months.length} months</em></li>` : ''}
+      <li><strong>Late nights didn't show up in next-day Mac work</strong>
+        No measurable next-day drop in start time or deep work — the reason to stop is the hours of sleep and phone, not productivity.
+        <em>night → next day, all tests null after correction</em></li>
+    </ul>
+  </div>`;
+
+  // ── charts
+  const yMin = { beginAtZero: true, grid: { color: '#1e2235' }, ticks: { precision: 0 } };
+  const noGridX = { grid: { display: false } };
+  // action 1: phone after midnight per work night
+  const a1 = workNightsAll;
+  new Chart(document.getElementById('ov-a1'), {
+    type: 'bar', data: { labels: a1.map(ovDay), datasets: [{ data: a1.map(d => Math.round(nightPhone(d))), ...ovBars(a1.map(d => ovWorkMorning(d) ? OV.ACCENT : OV.CONTEXT)) }] },
+    options: { ...BASE, scales: { x: { ...noGridX, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }, y: { ...yMin, title: { display: true, text: 'min after midnight' } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` ${c.raw} min after midnight · ${ovWorkMorning(a1[c.dataIndex]) ? 'before a workday' : 'before a weekend'}` } } } },
+    plugins: [ovRef(OV.NIGHT_TARGET, `target ${OV.NIGHT_TARGET}m`), ovStartMark(a1.findIndex(d => d >= OV.START))],
+  });
+  // action 2: longest focus block per weekday
+  const a2 = focusDays;
+  new Chart(document.getElementById('ov-a2'), {
+    type: 'bar', data: { labels: a2.map(ovDay), datasets: [{ data: a2.map(d => Math.round(focus[d]?.longest || 0)), ...ovBars(OV.ACCENT) }] },
+    options: { ...BASE, scales: { x: { ...noGridX, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }, y: { ...yMin, title: { display: true, text: 'longest block, min' } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` longest focus block ${c.raw} min` } } } },
+    plugins: [ovRef(OV.FOCUS_MIN, `${OV.FOCUS_MIN} min`), ovStartMark(a2.findIndex(d => d >= OV.START))],
+  });
+  // night profile: 6 PM → noon, Sun–Thu vs Fri–Sat
+  const HRS = [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  const prof = ns => HRS.map(h => { const v = ns.map(M => h >= 18 ? ph[ovAdd(M, -1)]?.[h] : ph[M][h]).filter(x => x != null); return v.length ? +ovMean(v).toFixed(1) : null; });
+  const pW = prof(workN), pE = prof(wkndN), lineDs = (data, color, label) => ({ label, data, borderColor: color, backgroundColor: color,
+    borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: color, pointBorderColor: OV.SURFACE, pointBorderWidth: 2, tension: 0.25 });
+  new Chart(document.getElementById('ov-nights'), {
+    type: 'line', data: { labels: HRS.map(HOUR_LBL), datasets: [lineDs(pW, OV.ACCENT, 'Sun–Thu nights'), lineDs(pE, OV.CONTEXT, 'Fri–Sat nights')] },
+    options: { ...BASE, interaction: { mode: 'index', intersect: false }, scales: { x: noGridX, y: { ...yMin, title: { display: true, text: 'phone min / hour' } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` ${c.dataset.label}: ${c.raw} min` } } } },
+    plugins: [ovBand(HRS.indexOf(0), HRS.indexOf(6), 'after midnight')],
+  });
+  document.getElementById('ov-nights-tbl').innerHTML = ovTable(['hour', 'Sun–Thu', 'Fri–Sat'], HRS.map((h, i) => [HOUR_LBL(h), pW[i] ?? '—', pE[i] ?? '—']));
+  // screens dark per night
+  new Chart(document.getElementById('ov-dark'), {
+    type: 'bar', data: { labels: nights.map(n => ovDay(n.M)), datasets: [{ data: nights.map(n => +n.d.hours.toFixed(1)),
+      ...ovBars(nights.map(n => n.work ? OV.ACCENT : OV.CONTEXT)) }] },
+    options: { ...BASE, scales: { x: { ...noGridX, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } }, y: { ...yMin, suggestedMax: 9, title: { display: true, text: 'hours' } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => { const n = nights[c.dataIndex]; return ` ${c.raw} h dark · ${ovClock(n.d.from)} → ${ovClock(n.d.to)}`; } } } } },
+    plugins: [ovRef(OV.SLEEP_LINE, `${OV.SLEEP_LINE} h`)],
+  });
+  document.getElementById('ov-dark-tbl').innerHTML = ovTable(['night before', 'dark', 'from', 'to'], nights.map(n => [ovDay(n.M), n.d.hours.toFixed(1) + ' h', ovClock(n.d.from), ovClock(n.d.to)]));
+}
+
+const VIEWS = ['overview', 'mac', 'iphone'];
+const viewFromHash = () => VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
 function showView(v) {
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
-  document.getElementById('main').hidden        = v !== 'mac';
-  document.getElementById('main-iphone').hidden = v !== 'iphone';
+  document.getElementById('main-overview').hidden = v !== 'overview';
+  document.getElementById('main').hidden          = v !== 'mac';
+  document.getElementById('main-iphone').hidden   = v !== 'iphone';
   document.getElementById('hdr-range').textContent = HDR[v];
   if (v === 'iphone' && !ipBuilt) { ipBuilt = true; initIphone(); }
+  if (v === 'overview' && !ovBuilt) { ovBuilt = true; initOverview(); }
   requestAnimationFrame(() => Object.values(Chart.instances).forEach(c => c.resize()));
   if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v);
 }
 document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
-window.addEventListener('hashchange', () => showView(location.hash === '#iphone' ? 'iphone' : 'mac'));
+window.addEventListener('hashchange', () => showView(viewFromHash()));
 
 // ════════════════════════════════════════════════════════════════════════════
 // Boot
@@ -2137,7 +2521,7 @@ async function init() {
   buildWdWe(_usage, chromeShares);
 }
 
-showView(location.hash === '#iphone' ? 'iphone' : 'mac');
+showView(viewFromHash());
 init();
 </script>
 </body>

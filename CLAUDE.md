@@ -25,10 +25,12 @@ screentime/
 │   ├── iphone_hourly.csv     ← iPhone minutes per hour, ESTIMATED from bar heights (screenshot import)
 │   ├── mac_usage.csv         ← Mac data, one row per app per day (auto)
 │   ├── mac_sessions.csv      ← Mac session-level data, one row per session (auto)
-│   └── chrome_history.csv    ← Chrome domain data, one row per domain per day (auto)
+│   ├── chrome_history.csv    ← Chrome domain data, one row per domain per day (auto)
+│   └── device_events.csv     ← exact-time events: Mac app/screen + iPhone messages/calls/alarms/Bluetooth (auto, sync_mac.py)
 ├── mobile time tracker/       ← new iPhone screenshots go here; imported ones move to imported/<date>/ (gitignored)
 ├── dashboard/
-│   └── index.html            ← Mac | iPhone dashboard (top menu)
+│   └── index.html            ← Overview (default) | Mac | iPhone dashboard
+├── analysis/README.md         ← how the Overview + its two actions were chosen (methods only; results in gitignored analysis/out/)
 └── scripts/
     ├── sync_all.py           ← the whole routine: iPhone import → Mac → Chrome → dashboard
     ├── log.py                ← interactive weekly iPhone logger (manual alternative)
@@ -71,6 +73,12 @@ screentime/
 - Appends finished days only (never today). Default Chrome profile only
 - Quit Chrome first for the most accurate data (open tabs haven't written their durations yet); the script copies the DB, so it still works with Chrome open
 
+### Exact-time events (`data/device_events.csv`, from `sync_mac.py`)
+- Columns `date,start,end,secs,device,stream,app,kind,dir`. `device` = Mac | iPhone | iPad | Watch — the iPhone syncs message/call/alarm/Bluetooth events into the Mac's knowledgeC, so this is free, exact-time iPhone data (no screen minutes though)
+- `stream`: app (Mac foreground interval), screen (Mac on/off), media, notification, intent (`kind` Messages/Calls/Timers…, `dir` out/in), bluetooth
+- Only timestamps, bundle ids, event types and direction — never message content, contacts or device names. Starts 2026-10-04 (knowledgeC keeps ~30 days, so it must be synced every ≤ 4 weeks)
+- Incoming messages (`dir=in`) arrive while asleep (family in Bangladesh, UTC+6) — never treat them as "awake"
+
 ## Routine — every 3 weeks (user keeps the calendar reminder; next: Sun 2026-11-29)
 Sources roll off: iPhone = current week + 3 before, Mac `knowledgeC.db` ≈ 30 days, Chrome ≈ 90 days.
 1. iPhone: Settings → Screen Time → See All App & Website Activity → screenshot each **Day** + each full **Week** → AirDrop → move into `mobile time tracker/`
@@ -97,6 +105,7 @@ Sources roll off: iPhone = current week + 3 before, Mac `knowledgeC.db` ≈ 30 d
 ## Dashboard
 - `dashboard/index.html` — single file, Chart.js 4 via CDN
 - Served by `scripts/sync_all.py` (or `python3 -m http.server 8000` from project root) → `http://localhost:8000/dashboard/`
+- **Overview tab** (default, `#overview`): phone/day vs goal, 3 facts, the **two actions** (started 2026-11-03; baseline = days before) with live trackers, night profile (Sun–Thu vs Fri–Sat), screens-dark hours per night, 6 live findings. All tunables in the `OV` constant (start date, targets, focus-block rules, Build apps). Definitions: `analysis/README.md`. Don't hard-code personal numbers in it — the repo is public
 - Mac app categories (Deep Work / Comms / Browse / Entertainment / System) defined in `CATS` near the top of index.html
 - Chrome domain categories (Dev / Research / Entertainment / Comms / Shopping / Search / Other) defined in `CHROME_CATS` just below `CATS`. Suffix-matched: `console.firebase.google.com` → Dev. `app.blackbox.ai` and the Tab Suspender extension (`fiabciakcmgepblmdkmemdbbkilneeeh`) excluded as background noise.
 - **Chrome → Mac category overrides** in `CHROME_TO_MAC_CAT` (just below `CHROME_CATS`). For Mac-side charts, Chrome time is *redistributed* across Mac categories using each day's domain breakdown (e.g., time on `claude.ai` counts as Deep Work, not Browse). Only affects: 7-day strip's % deep work, Daily Category Mix, Daily Rhythm, Weekday vs Weekend. The Chrome breakdown panel is untouched. To add/remove a domain → edit the `deep_work` / `entertainment` arrays in this constant. Anything not listed defaults to Browse.

@@ -1,4 +1,7 @@
 # Future plan (keep this to 3 items or fewer)
 
-1. **Every 3 weeks: run the routine** (next: Sun 2026-11-29, then every 3 weeks). Steps are in `README.md` → Routine. `sync_all.py` prints the next date when it finishes.
-2. **Pickups + notifications:** when you're ready, also screenshot each day's Pickups and Notifications sections (scroll down in the Day view), then ask Claude to extend `import_iphone.py`. They get stored as new `metric` values in `iphone_hourly.csv`.
+1. **Every 3 weeks: run the routine** (next: Sun 2026-11-29). Steps are in `README.md` → Routine. This time, also screenshot each full **Week**'s "Most Used" list.
+2. **Follow the two actions on the Overview tab** (started 2026-11-03). Each sync fills in their trackers; review them then.
+   - **Phone out of the bedroom at 12:30 AM.**
+   - **One 50-minute focus block** on weekdays.
+3. **Once: name the uncategorized night app.** In Screen Time, open your heaviest night (shown on the Overview) and tap the 1–3 AM bars. Then block that app in Downtime. Pickups and notifications can wait.

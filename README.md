@@ -10,7 +10,7 @@ Personal, local-only tracker for three sources: **iPhone** (Screen Time screensh
    cd ~/"Historical Screen Time Tracker" && python3 scripts/sync_all.py
    ```
    Check the iPhone table, type `y`. Mac + Chrome sync on their own.
-3. **Dashboard** opens at `http://localhost:8000/dashboard/`. Ctrl+C in Terminal when done.
+3. **Dashboard** opens at `http://localhost:8000/dashboard/` on the **Overview** tab: are you on track + your two actions. Ctrl+C in Terminal when done.
 
 **Why every 3 weeks:** the sources delete old data. iOS shows only the current week plus the 3 before it, macOS keeps about 30 days and Chrome about 90. Every sync only *appends* finished days (never today) and never rewrites rows already saved.
 
@@ -24,7 +24,7 @@ Personal, local-only tracker for three sources: **iPhone** (Screen Time screensh
 |---|---|
 | `scripts/sync_all.py` | The whole routine: iPhone import (asks before writing) → Mac → Chrome → dashboard. `--no-serve` skips the dashboard |
 | `scripts/import_iphone.py` | Screenshots → `data/`. `--dry-run` previews. Reads only the top level of `mobile time tracker/`. `sync_all.py` moves imported shots to `imported/<date>/` |
-| `scripts/sync_mac.py` | Appends finished days from `knowledgeC.db` |
+| `scripts/sync_mac.py` | Appends finished days from `knowledgeC.db` (incl. `device_events.csv`) |
 | `scripts/sync_chrome.py` | Appends finished days from Chrome's history DB (Default profile) |
 | `scripts/log.py` | Manual fallback: type one iPhone week in by hand |
 
@@ -45,6 +45,13 @@ Personal, local-only tracker for three sources: **iPhone** (Screen Time screensh
 **`mac_usage.csv`** — one row per app per day: `date, app_name, bundle_id, mins, sessions, first_use, last_use`.
 
 **`mac_sessions.csv`** — one row per app session: `date, hour, app_name, bundle_id, session_mins`. Feeds the daily rhythm chart, the 14-day grid and the focus stats.
+
+**`device_events.csv`** — exact-time events, `date, start, end, secs, device, stream, app, kind, dir`. Each row is one of:
+- a Mac app interval or screen on/off;
+- an iPhone/iPad message, call or alarm, which syncs to the Mac on its own (`dir` = out/in);
+- a Bluetooth connect/disconnect.
+
+It stores no content, contacts or names. It starts 2026-10-04.
 
 **`chrome_history.csv`** — one row per domain per day: `date, domain, visits, total_mins`. Each page visit is capped at 10 min, because Chrome counts how long a tab is open, not attention.
 

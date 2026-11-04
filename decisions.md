@@ -1,5 +1,17 @@
 # Decisions & Insights
 
+## Decision 2026-11-03: two actions, tracked on the Overview tab
+Chosen from a fresh-eyes re-analysis (`analysis/README.md`; personal numbers stay in the local `analysis/out/REPORT.md`).
+1. **Every night: phone out of the bedroom at 12:30 AM.**
+   - Downtime 12:30–7:30 AM, Block at Downtime; Mac lid closed then too.
+   - Why: the phone problem is mostly after midnight, and mostly before workdays. It's consumption, not messaging, and much of it is in no iOS category.
+2. **Weekdays: one 50-minute focus block.** Browsing batched (a "look up later" note), phone in another room, WhatsApp quit.
+   - Why: Chrome, not chat, ends most work stretches, and the phone fills the Mac's idle gaps.
+
+Review at each sync. The baseline is the period before 2026-11-03.
+
+---
+
 Last checked: **2026-11-03** (result below). Re-check whenever you want, no fixed date.
 
 ---

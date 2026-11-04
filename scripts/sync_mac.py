@@ -6,6 +6,11 @@ Reads app usage history from macOS Knowledge Store and writes one row
 per app per day. Run anytime — it only appends finished days (never today)
 that aren't already in the CSV. macOS keeps only ~30 days.
 
+Also writes data/device_events.csv: exact-timestamp events from the same database —
+Mac app focus, Mac screen on/off, and the message / call / alarm / Bluetooth events
+that the iPhone, iPad and Watch sync to this Mac. Only timestamps, bundle ids and
+event types are stored — never message content, contacts or device names.
+
 Usage:
     python3 scripts/sync_mac.py             # append new finished days
     python3 scripts/sync_mac.py --full      # DESTRUCTIVE: rebuild CSV from the ~30 days macOS still has
@@ -24,6 +29,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 CSV_PATH = SCRIPT_DIR.parent / "data" / "mac_usage.csv"
 SESSIONS_CSV_PATH = SCRIPT_DIR.parent / "data" / "mac_sessions.csv"
+EVENTS_CSV_PATH = SCRIPT_DIR.parent / "data" / "device_events.csv"
 KNOWLEDGE_DB = Path.home() / "Library" / "Application Support" / "Knowledge" / "knowledgeC.db"
 
 # Core Data epoch
@@ -31,6 +37,17 @@ EPOCH = datetime(2001, 1, 1)
 
 CSV_HEADER = ["date", "app_name", "bundle_id", "mins", "sessions", "first_use", "last_use"]
 SESSIONS_HEADER = ["date", "hour", "app_name", "bundle_id", "session_mins"]
+EVENTS_HEADER = ["date", "start", "end", "secs", "device", "stream", "app", "kind", "dir"]  # dir: out / in / "" (intents only)
+
+# knowledgeC stream → short name in device_events.csv
+EVENT_STREAMS = {
+    "/app/usage": "app",                  # Mac: foreground app interval (app = bundle id)
+    "/display/isBacklit": "screen",       # Mac: screen interval, kind = on / off
+    "/app/mediaUsage": "media",           # Mac: media playback (app = bundle id)
+    "/notification/usage": "notification",
+    "/app/intents": "intent",             # mostly iPhone/iPad: kind = Messages / Calls / Timers / Media …
+    "/bluetooth/isConnected": "bluetooth" # kind = connected / disconnected
+}
 
 # Bundle ID -> friendly name
 BUNDLE_TO_NAME = {
@@ -156,6 +173,62 @@ def fetch_sessions(conn, since_date=None):
     return conn.execute(query, params).fetchall()
 
 
+def fetch_events(conn, since_date=None):
+    """Exact-timestamp events. Never reads metadata tables (message content, contacts, names)."""
+    names = list(EVENT_STREAMS)
+    query = f"""
+        SELECT
+            date(o.ZSTARTDATE + 978307200, 'unixepoch', 'localtime'),
+            datetime(o.ZSTARTDATE + 978307200, 'unixepoch', 'localtime'),
+            datetime(o.ZENDDATE + 978307200, 'unixepoch', 'localtime'),
+            CAST(ROUND(o.ZENDDATE - o.ZSTARTDATE) AS INTEGER),
+            p.ZMODEL, s.ZDEVICEID, o.ZSTREAMNAME, s.ZBUNDLEID, o.ZVALUESTRING, o.ZVALUEINTEGER,
+            m.Z_DKINTENTMETADATAKEY__DIRECTION
+        FROM ZOBJECT o
+        LEFT JOIN ZSOURCE s ON o.ZSOURCE = s.Z_PK
+        LEFT JOIN ZSYNCPEER p ON s.ZDEVICEID = p.ZDEVICEID
+        LEFT JOIN ZSTRUCTUREDMETADATA m ON o.ZSTRUCTUREDMETADATA = m.Z_PK   -- only the direction integer is read
+        WHERE o.ZSTREAMNAME IN ({",".join("?" * len(names))})
+    """
+    params = list(names)
+    if since_date:
+        query += " AND o.ZSTARTDATE >= ?"
+        params.append((datetime.strptime(since_date, "%Y-%m-%d") - EPOCH).total_seconds())
+    query += " ORDER BY o.ZSTARTDATE"
+    out = []
+    for day, start, end, secs, model, dev_id, stream, src_bundle, vstr, vint, direction in conn.execute(query, params):
+        device = "Mac" if not dev_id else ("".join(c for c in (model or "") if c.isalpha()) or "other")
+        kind_of = EVENT_STREAMS[stream]
+        if kind_of in ("app", "media"):
+            app, kind = vstr or "", ""
+        elif kind_of == "screen":
+            app, kind = "", "on" if vint == 1 else "off"
+        elif kind_of == "bluetooth":
+            app, kind = "", "connected" if vint == 1 else "disconnected"
+        else:  # intent / notification
+            app, kind = src_bundle or "", vstr or ""
+        d = {1: "out", 2: "in"}.get(direction, "") if kind_of == "intent" else ""
+        out.append([day, start, end, secs, device, kind_of, app, kind, d])
+    return out
+
+
+def sync_events(conn, full=False):
+    """Append finished days of device_events.csv. Returns (rows, days) written."""
+    known = set() if full else existing_dates(EVENTS_CSV_PATH)
+    rows = fetch_events(conn, since_date=max(known) if known else None)
+    today = date.today().isoformat()
+    rows = [r for r in rows if r[0] < today and r[0] not in known]
+    if not rows:
+        return 0, 0
+    mode = "w" if full or not EVENTS_CSV_PATH.exists() else "a"
+    with open(EVENTS_CSV_PATH, mode, newline="") as f:
+        writer = csv.writer(f)
+        if mode == "w":
+            writer.writerow(EVENTS_HEADER)
+        writer.writerows(rows)
+    return len(rows), len({r[0] for r in rows})
+
+
 def threshold_color(mins):
     if mins < 120:
         return GREEN
@@ -199,7 +272,10 @@ def main():
 
     rows = fetch_usage(conn, since_date=since)
     session_rows = fetch_sessions(conn, since_date=since)
+    ev_rows, ev_days = sync_events(conn, full=args.full)
     conn.close()
+    if ev_rows:
+        print(f"{GREEN}✓ {ev_rows} exact-time events across {ev_days} days → {EVENTS_CSV_PATH.name}{RESET}")
 
     if not rows and not session_rows:
         print(f"{DIM}No new data to sync.{RESET}")
