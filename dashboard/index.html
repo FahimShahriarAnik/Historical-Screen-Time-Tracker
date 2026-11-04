@@ -122,6 +122,7 @@
     .ov-nums td, .ov-nums th { padding: 3px 6px; border-bottom: 1px solid #161927; text-align: right; color: #94a3b8; font-weight: 400; }
     .ov-nums th { color: #64748b; }
     .ov-nums td:first-child, .ov-nums th:first-child { text-align: left; }
+    .hist-title { font-size: 17px; font-weight: 650; color: #f1f5f9; margin: 10px 0 2px; }
     @media (max-width: 860px) {
       .ov-facts { grid-template-columns: 1fr 1fr; }
       .ov-find { grid-template-columns: 1fr; }
@@ -146,6 +147,7 @@
     <button class="tab" role="tab" data-view="overview" aria-selected="true">Overview</button>
     <button class="tab" role="tab" data-view="mac" aria-selected="false">Mac</button>
     <button class="tab" role="tab" data-view="iphone" aria-selected="false">iPhone</button>
+    <button class="tab" role="tab" data-view="history" aria-selected="false">History</button>
   </nav>
   <p id="hdr-range">loading…</p>
 </header>
@@ -157,6 +159,7 @@
 
 <!-- ═══════════════════════════ iPhone view ═══════════════════════════ -->
 <main id="main-iphone" hidden></main>
+<main id="main-history" hidden></main>
 
 <script>
 function parseCSV(txt) {
@@ -248,8 +251,8 @@ const IP_CATS = [
 ];
 const IP_NOT_SHOWN = '#2a3045', IP_NO_CAT = '#94a3b8';
 const HOUR_LBL = h => h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`;
-const HDR = { overview:'loading…', mac:'loading…', iphone:'loading…' };
-let ipBuilt = false, ovBuilt = false, macBuilt = false;
+const HDR = { overview:'loading…', mac:'loading…', iphone:'loading…', history:'loading…' };
+let ipBuilt = false, ovBuilt = false, macBuilt = false, histBuilt = false;
 
 function ipCatKey(name) {
   if (name === 'Productivity') return 'Productivity & Finance';
@@ -777,16 +780,88 @@ async function initOverview() {
   document.getElementById('ov-dark-tbl').innerHTML = ovTable(['night before', 'dark', 'from', 'to'], nights.map(n => [ovDay(n.M), n.d.hours.toFixed(1) + ' h', ovClock(n.d.from), ovClock(n.d.to)]));
 }
 
-const VIEWS = ['overview', 'mac', 'iphone'];
+// ════════════════════════════════════════════════════════════════════════════
+// History tab — what changed since tracking began: 2 better, 2 worse.
+// Each card's verdict (better / worse) is computed from the data, so it updates with every sync.
+// ════════════════════════════════════════════════════════════════════════════
+async function initHistory() {
+  const main = document.getElementById('main-history');
+  const [ses, chrome, st] = await Promise.all(['mac_sessions.csv', 'chrome_history.csv', 'screentime.csv'].map(ovLoad));
+  const { macApp } = await loadEvents();
+  const monL = m => new Date(m + '-15T12:00:00').toLocaleDateString('en-US', { month: 'short' });
+  const monday = d => ovAdd(d, -((ovDow(d) + 6) % 7));
+  const wkL = w => `wk of ${dateLabel(w)}`;
+  // 1 · desktop video (YouTube + Netflix in Chrome), min/day by month
+  const cd = {}, vid = {};
+  chrome.forEach(r => { const m = r.date.slice(0, 7); (cd[m] ||= new Set()).add(r.date);
+    if (/(^|\.)(youtube|netflix)\.com$/.test(r.domain)) vid[m] = (vid[m] || 0) + (+r.total_mins); });
+  const vm = Object.keys(cd).filter(m => cd[m].size >= 10).sort(), vv = vm.map(m => Math.round((vid[m] || 0) / cd[m].size));
+  const vPeak = vv.indexOf(Math.max(...vv));
+  // 2 · VS Code by month: min/day in sessions of 10+ min vs shorter
+  const sd = {}, vl = {}, vs = {};
+  ses.forEach(r => { const m = r.date.slice(0, 7); (sd[m] ||= new Set()).add(r.date); if (r.app_name !== 'VS Code') return;
+    const x = +r.session_mins; if (x >= 10) vl[m] = (vl[m] || 0) + x; else vs[m] = (vs[m] || 0) + x; });
+  const cm = Object.keys(sd).filter(m => sd[m].size >= 7).sort();
+  const cLong = cm.map(m => Math.round((vl[m] || 0) / sd[m].size)), cShort = cm.map(m => Math.round((vs[m] || 0) / sd[m].size));
+  const cShare = i => Math.round(100 * cLong[i] / Math.max(1, cLong[i] + cShort[i]));
+  // 3 · phone per day, by week (weeks with ≥ 5 days)
+  const pw = {};
+  st.forEach(r => { if (r.date && r.total_mins !== '' && !(r.date >= IPHONE_SAMPLE.from && r.date <= IPHONE_SAMPLE.to)) (pw[monday(r.date)] ||= []).push(+r.total_mins); });
+  const pk = Object.keys(pw).filter(w => pw[w].length >= 5).sort(), pv = pk.map(w => Math.round(ovMean(pw[w])));
+  // 4 · focused minutes per weekday (25+ min stretches), by week (weeks with 5 weekdays)
+  const fd = {}, ff = {};
+  macApp.forEach(iv => { if (ovWorkMorning(iv.date)) (fd[monday(iv.date)] ||= new Set()).add(iv.date); });
+  workBlocks(macApp).blocks.forEach(b => { if (b.len >= 25 && ovWorkMorning(b.date)) ff[monday(b.date)] = (ff[monday(b.date)] || 0) + b.len; });
+  const fk = Object.keys(fd).filter(w => fd[w].size >= 5).sort(), fv = fk.map(w => Math.round((ff[w] || 0) / fd[w].size));
+
+  const L = a => a[a.length - 1], P = a => a[a.length - 2];
+  const verdict = good => good ? `<div class="ov-status"><i style="background:${IP_STATUS.green}"></i>▲ Better</div>`
+                               : `<div class="ov-status"><i style="background:${IP_STATUS.red}"></i>▼ Worse</div>`;
+  const card = (id, good, title, sub) => `<div class="card">${verdict(good)}<h3 class="hist-title">${title}</h3><p class="sub">${sub}</p>
+    <div class="chart-wrap h240"><canvas id="${id}"></canvas></div></div>`;
+  HDR.history = `Chrome since ${monL(vm[0])} · Mac ${cm.map(monL).join(', ')} · iPhone since ${pk.length ? dateLabel(pk[0]) : '—'}`;
+  if (!main.hidden) document.getElementById('hdr-range').textContent = HDR.history;
+  main.innerHTML = `
+  <div class="card full"><h2>What changed since tracking began</h2>
+    <p class="sub" style="margin:0">Two things got better over months, two got worse in the most recent weeks. The verdicts recompute with every sync. Mac data has gaps in May, Aug and Sep; the iPhone only goes back to Oct 12.</p></div>
+  ${card('h-video', L(vv) < vv[vPeak], `Desktop video: ${vv[vPeak]} → ${L(vv)} min/day`, `YouTube + Netflix in Chrome, per day by month · peak ${monL(vm[vPeak])}, now ${monL(L(vm))}`)}
+  ${card('h-code', cShare(cm.length - 1) > cShare(0), `Coding got deeper: ${cShare(0)}% → ${cShare(cm.length - 1)}% in 10+ min sessions`, `VS Code minutes per day by month · blue = sessions of 10+ min, gray = shorter`)}
+  ${card('h-phone', !(L(pv) > P(pv)), `Phone: ${fmtHM(P(pv))} → ${fmtHM(L(pv))} a day`, `iPhone per day, by week · dashed = 2h goal`)}
+  ${card('h-focus', !(L(fv) < P(fv)), `Focused work: ${P(fv)} → ${L(fv)} min per weekday`, `Minutes in 25+ min stretches per weekday, by week · the same week the phone jumped`)}`;
+
+  const yMin = { beginAtZero: true, grid: { color: '#1e2235' } }, noX = { grid: { display: false } };
+  const lastAccent = n => Array.from({ length: n }, (_, i) => i === n - 1 ? OV.ACCENT : OV.CONTEXT);
+  const bar = (id, labels, data, unit, extra = []) => new Chart(document.getElementById(id), { type: 'bar',
+    data: { labels, datasets: [{ data, ...ovBars(lastAccent(data.length)), maxBarThickness: 36 }] },
+    options: { ...BASE, scales: { x: noX, y: { ...yMin, title: { display: true, text: unit } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` ${unit === 'h / day' ? fmtHM(c.raw) : c.raw + ' ' + unit}` } } } }, plugins: extra });
+  bar('h-video', vm.map(monL), vv, 'min / day');
+  new Chart(document.getElementById('h-code'), { type: 'bar',
+    data: { labels: cm.map(monL), datasets: [
+      { label: '10+ min sessions', data: cLong, backgroundColor: OV.ACCENT, maxBarThickness: 36 },
+      { label: 'shorter', data: cShort, backgroundColor: OV.CONTEXT, maxBarThickness: 36, borderRadius: { topLeft: 4, topRight: 4 }, borderSkipped: 'bottom' } ] },
+    options: { ...BASE, interaction: { mode: 'index', intersect: false }, scales: { x: { ...noX, stacked: true }, y: { ...yMin, stacked: true, title: { display: true, text: 'VS Code min / day' } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` ${c.dataset.label}: ${c.raw} min`, footer: it => `${cShare(it[0].dataIndex)}% in 10+ min sessions` } } } } });
+  new Chart(document.getElementById('h-phone'), { type: 'bar',
+    data: { labels: pk.map(wkL), datasets: [{ data: pv, ...ovBars(lastAccent(pv.length)), maxBarThickness: 36 }] },
+    options: { ...BASE, scales: { x: noX, y: { ...yMin, ticks: { stepSize: 60, callback: hoursTick } } },
+      plugins: { ...BASE.plugins, tooltip: { ...TIP, callbacks: { label: c => ` ${fmtHM(c.raw)} a day` } } } },
+    plugins: [ovRef(IP_GOAL, '2h goal')] });
+  bar('h-focus', fk.map(wkL), fv, 'min / weekday');
+}
+
+const VIEWS = ['overview', 'mac', 'iphone', 'history'];
 const viewFromHash = () => VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
 function showView(v) {
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
   document.getElementById('main-overview').hidden = v !== 'overview';
   document.getElementById('main').hidden          = v !== 'mac';
   document.getElementById('main-iphone').hidden   = v !== 'iphone';
+  document.getElementById('main-history').hidden  = v !== 'history';
   document.getElementById('hdr-range').textContent = HDR[v];
   if (v === 'iphone' && !ipBuilt) { ipBuilt = true; initIphone(); }
   if (v === 'mac' && !macBuilt) { macBuilt = true; initMac(); }
+  if (v === 'history' && !histBuilt) { histBuilt = true; initHistory(); }
   if (v === 'overview' && !ovBuilt) { ovBuilt = true; initOverview(); }
   requestAnimationFrame(() => Object.values(Chart.instances).forEach(c => c.resize()));
   if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v);
